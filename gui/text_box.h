@@ -11,6 +11,7 @@
 
 #include "libs/libPSF/PSF.h"
 #include "ogl_h_func.h"
+#include "timer.h"
 
 using namespace std;
 
@@ -23,12 +24,20 @@ class Text_box {
 	TTF_Font *ttf_font;
 
 	uint8_t text_spd;
-	uint8_t loop_ani;
-	uint32_t loop_pos;
+	bool text_ani;
+	uint32_t text_pos;
+    Timer ani_timer;
 
     GLuint *tex_id;
 	// Vertex array object and vertex buffer object
 	GLuint vao, vbo[2];
+
+    GLfloat trans_mat[16] = {
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f }; 
+
     static Shader shader;
 	static bool init_shader;
 

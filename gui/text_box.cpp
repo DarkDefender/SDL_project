@@ -35,10 +35,10 @@ Text_box::Text_box(uint32_t x, uint32_t y, uint32_t w, uint32_t h, string font_p
 	text_rect.y = y;
 	text_rect.w = w;
 	text_rect.h = h;
-	animation_done = true;
+	animation_done = false;
 	text_spd = 0;
-	loop_ani = false;
-    loop_pos = 0;
+	text_ani = false;
+    text_pos = 0;
 
 	tex_id = NULL;
     // size is only used for the ttf font
@@ -61,23 +61,26 @@ Text_box::Text_box(uint32_t x, uint32_t y, uint32_t w, uint32_t h, string font_p
 
     //Create the opengl quad
 	
-    float ogl_x, ogl_y, ogl_x2, ogl_y2;
+    GLfloat ogl_x, ogl_y, ogl_x2, ogl_y2;
 
-	ogl_x = (x - 160.0f) / 160.0f;
-	ogl_y = 1.0f - y / 120.0f;
-	ogl_x2 = (x+w - 160.0f ) / 160.0f;
-	ogl_y2 = 1.0f - (y+h) / 120.0f;
+	ogl_x = x / 320.0f;
+	ogl_y = y / 240.0f;
+	ogl_x2 = (w - 320.0f ) / 320.0f;
+	ogl_y2 = 1.0f - h / 240.0f;
 
-    cout << "X: " << ogl_x << endl << "Y: " << ogl_y << endl << "X2: " << ogl_x2 << endl << "Y2: " << ogl_y2 << endl;
+    trans_mat[3] = ogl_x;
+    trans_mat[7] = -ogl_y;
+
+    //cout << "X: " << ogl_x << endl << "Y: " << ogl_y << endl << "X2: " << ogl_x2 << endl << "Y2: " << ogl_y2 << endl;
 
 	GLfloat vertices[] =
 	{
-		ogl_x,ogl_y,0.0f,
-		ogl_x,ogl_y2,0.0f,
+		-1.0f,1.0f,0.0f,
+		-1.0f,ogl_y2,0.0f,
 		ogl_x2,ogl_y2,0.0f,
-		ogl_x,ogl_y,0.0f,
+		-1.0f,1.0f,0.0f,
 		ogl_x2,ogl_y2,0.0f,
-		ogl_x2,ogl_y,0.0f
+		ogl_x2,1.0f,0.0f
 	}; 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -190,7 +193,7 @@ bool Text_box::load_font(string font_path){
 string Text_box::text_wrap(string str){
 	istringstream iss(str);
 	string word, wrapped_str = "";
-	int lenght = 0, space_width = 0;
+	int length = 0, space_width = 0;
 
 	if (!bitmap_font){
 		string space = " ";
@@ -202,22 +205,22 @@ string Text_box::text_wrap(string str){
 	while(iss >> word) {
 		int word_len = 0;
 		if(bitmap_font){
-			word_len = word.length();
-			lenght += (word_len * psf_width);
+			word_len = word.length() * psf_width;
+			length += word_len;
 		} else {
 			TTF_SizeUTF8(ttf_font, word.c_str(), &word_len, NULL);
-			lenght += word_len;
+			length += word_len;
 		}
 		if (wrapped_str == ""){
 			wrapped_str = word;
-		} else if (lenght > text_rect.w){
+		} else if (length > text_rect.w){
 			wrapped_str += "\n" + word;
-			lenght = word_len;
+			length = word_len;
 		} else {
 			wrapped_str += " " + word;
 		}
 		// Account for space that will be added
-		lenght += space_width;
+		length += space_width;
 	}
 	return wrapped_str;
 }
@@ -265,7 +268,7 @@ void Text_box::create_TTF_surf(string str){
 		i++;
 	}
 
-	create_text_shadow(final_surf, false);
+	create_text_shadow(final_surf, true);
 
     tex_id = surf_to_texture(final_surf);
 
@@ -313,22 +316,23 @@ void Text_box::create_text_shadow(SDL_Surface *orig_surf, bool outline){
 }
 
 void Text_box::new_text(string str){
-	if (!str.empty() && str != box_text){
+	if (!str.empty()){
 
-        box_text = str;
-		loop_pos = 0;
+		//Wrap the text
+		box_text = text_wrap(str);
+		text_pos = 0;
+		animation_done = false;
 
 		if (tex_id != NULL){
 			// Free the previous texture
 			glDeleteTextures(1,tex_id);
+			tex_id = NULL;
 		}
-		//Wrap the text
-		str = text_wrap(str);
 
 		if (!bitmap_font){
-			create_TTF_surf(str);
+			create_TTF_surf(box_text);
 		} else {
-			create_bitmap_surf(str); 
+			create_bitmap_surf(box_text); 
 		}
 	}
 }
@@ -340,21 +344,61 @@ void Text_box::render_text(){
 		return;
 	}
 
+    if(text_ani && !animation_done){
+		if(!ani_timer.isStarted()){
+			ani_timer.start();
+		}
+        if(ani_timer.delta_s()*text_spd > 1.0f){
+			text_pos++;
+			ani_timer.start();
+		}
+		
+        if(text_pos > box_text.length()){
+			animation_done = true;
+			ani_timer.stop();
+		} else {
+			if (tex_id != NULL){
+				// Free the previous texture
+				glDeleteTextures(1,tex_id);
+				tex_id = NULL;
+			}
+
+            string str = box_text.substr(0, text_pos);
+
+			if (!bitmap_font){
+				create_TTF_surf(str);
+			} else {
+				create_bitmap_surf(str); 
+			}
+		}
+
+	}
+
 	glUseProgram(shader.program);
 
 	glBindVertexArray(vao);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "myMatrix"), 1, GL_TRUE, trans_mat);
 
 	glBindTexture(GL_TEXTURE_2D, *tex_id);
 	//Draw out texbox quad
 	glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-void Text_box::set_text_speed(uint8_t text_speed, bool loop){
+void Text_box::set_text_speed(uint8_t text_speed, bool ani){
 	text_spd = text_speed;
-	loop_ani = loop;
+	text_ani = ani;
 }
 
 void Text_box::set_pos(uint32_t x, uint32_t y){
 	text_rect.x = x;
 	text_rect.y = y;
+	
+    GLfloat ogl_x, ogl_y;
+
+	ogl_x = x / 320.0f;
+	ogl_y = y / 240.0f;
+
+    trans_mat[3] = ogl_x;
+    trans_mat[7] = -ogl_y;
 }

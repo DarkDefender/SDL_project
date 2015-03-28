@@ -8,7 +8,7 @@
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_image.h>
 
-#include "gui/text_box.h"
+#include "game.h"
 
 #define PROGRAM_NAME "Tutorial1"
  
@@ -115,37 +115,10 @@ int main(int argc, char *argv[])
 	cout << "gl_context: " << glGetString(GL_VERSION) << endl;
 	cout << "gl_shading_lang_version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
-	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/PROBE_10PX_TTF.ttf", 8);
-	Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
-    b1->new_text("Hipp, Happ, Hopp!");
-    b2->new_text("Press enter to exit tutorial...");
+    SDL_GL_SwapWindow(mainwindow);
+ 
+    game(mainwindow);
 
-    SDL_GL_SwapWindow(mainwindow);
-
-    /* Clear our buffer with a red background */
-    glClearColor ( 1.0, 0.0, 0.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-	b2->render_text();
-    /* Swap our back buffer to the front */
-    SDL_GL_SwapWindow(mainwindow);
-    /* Wait 2 seconds */
-    SDL_Delay(2000);
- 
-    /* Same as above, but green */
-    glClearColor ( 0.0, 1.0, 0.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-	b1->render_text();
-	b2->render_text();
-    SDL_GL_SwapWindow(mainwindow);
-    SDL_Delay(2000);
- 
-    /* Same as above, but blue */
-    glClearColor ( 0.0, 0.0, 1.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-	b2->render_text();
-    SDL_GL_SwapWindow(mainwindow);
-    SDL_Delay(2000);
- 
     /* Delete our opengl context, destroy our window, and shutdown SDL */
     SDL_GL_DeleteContext(maincontext);
     SDL_DestroyWindow(mainwindow);

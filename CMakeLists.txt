@@ -12,7 +12,7 @@ endif( NOT ZLIB_FOUND )
 add_subdirectory(libs)
 add_subdirectory(gui)
 
-add_executable(${PROJECT_NAME} main.cpp timer.cpp ogl_h_func.cpp)
+add_executable(${PROJECT_NAME} main.cpp game.cpp timer.cpp ogl_h_func.cpp)
 
 include(FindPkgConfig)
 include(FindOpenGL)
