@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
  
     /* Create our window centered at 512x512 resolution */
     mainwindow = SDL_CreateWindow(PROGRAM_NAME, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        512, 512, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+        640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     if (!mainwindow) /* Die if creation failed */
 	{
         cerr << "Unable to create window" << endl;
@@ -115,14 +115,17 @@ int main(int argc, char *argv[])
 	cout << "gl_context: " << glGetString(GL_VERSION) << endl;
 	cout << "gl_shading_lang_version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << endl;
 
-	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/PROBE_10PX_TTF.ttf");
+	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/PROBE_10PX_TTF.ttf", 8);
+	Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
     b1->new_text("Hipp, Happ, Hopp!");
+    b2->new_text("Press enter to exit tutorial...");
 
     SDL_GL_SwapWindow(mainwindow);
 
     /* Clear our buffer with a red background */
     glClearColor ( 1.0, 0.0, 0.0, 1.0 );
     glClear ( GL_COLOR_BUFFER_BIT );
+	b2->render_text();
     /* Swap our back buffer to the front */
     SDL_GL_SwapWindow(mainwindow);
     /* Wait 2 seconds */
@@ -132,12 +135,14 @@ int main(int argc, char *argv[])
     glClearColor ( 0.0, 1.0, 0.0, 1.0 );
     glClear ( GL_COLOR_BUFFER_BIT );
 	b1->render_text();
+	b2->render_text();
     SDL_GL_SwapWindow(mainwindow);
     SDL_Delay(2000);
  
     /* Same as above, but blue */
     glClearColor ( 0.0, 0.0, 1.0, 1.0 );
     glClear ( GL_COLOR_BUFFER_BIT );
+	b2->render_text();
     SDL_GL_SwapWindow(mainwindow);
     SDL_Delay(2000);
  

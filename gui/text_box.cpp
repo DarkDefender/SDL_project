@@ -16,15 +16,6 @@
 #include "ogl_h_func.h"
 
 using namespace std;
-GLfloat vertices[] =
-{
-	-1.0f,1.0f,0.0f,
-	-1.0f,-1.0f,0.0f,
-	1.0f,-1.0f,0.0f,
-	-1.0f,1.0f,0.0f,
-	1.0f,-1.0f,0.0f,
-	1.0f,1.0f,0.0f
-}; 
 
 GLfloat UVs[] =
 {
@@ -68,6 +59,26 @@ Text_box::Text_box(uint32_t x, uint32_t y, uint32_t w, uint32_t h, string font_p
 		init_shader = false;
 	}
 
+    //Create the opengl quad
+	
+    float ogl_x, ogl_y, ogl_x2, ogl_y2;
+
+	ogl_x = (x - 160.0f) / 160.0f;
+	ogl_y = 1.0f - y / 120.0f;
+	ogl_x2 = (x+w - 160.0f ) / 160.0f;
+	ogl_y2 = 1.0f - (y+h) / 120.0f;
+
+    cout << "X: " << ogl_x << endl << "Y: " << ogl_y << endl << "X2: " << ogl_x2 << endl << "Y2: " << ogl_y2 << endl;
+
+	GLfloat vertices[] =
+	{
+		ogl_x,ogl_y,0.0f,
+		ogl_x,ogl_y2,0.0f,
+		ogl_x2,ogl_y2,0.0f,
+		ogl_x,ogl_y,0.0f,
+		ogl_x2,ogl_y2,0.0f,
+		ogl_x2,ogl_y,0.0f
+	}; 
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -129,8 +140,9 @@ bool Text_box::load_font(string font_path){
 			SDL_Surface *tmp = SDL_CreateRGBSurface(0,psf_width,psf_height,32,0xFF000000,0x00FF0000,0x0000FF00,0x000000FF);
 
 			//Read the glyph directly into the surface's memory
-			PSF_ReadGlyph(tmp->pixels,4,0x000000FF,0xFFFFFF00);
+			PSF_ReadGlyph(tmp->pixels,4,0xFFFFFFFF,0x00000000);
 
+			SDL_SetSurfaceBlendMode(tmp, SDL_BLENDMODE_NONE);
 			psf_font[i] = tmp;
 		}
 
@@ -225,6 +237,8 @@ void Text_box::create_bitmap_surf(string str){
 		x++;
 	}
 
+	create_text_shadow(final_surf, true);
+
     tex_id = surf_to_texture(final_surf);
 
 	SDL_FreeSurface(final_surf);
@@ -251,6 +265,8 @@ void Text_box::create_TTF_surf(string str){
 		i++;
 	}
 
+	create_text_shadow(final_surf, false);
+
     tex_id = surf_to_texture(final_surf);
 
 	SDL_FreeSurface(final_surf);
@@ -258,9 +274,7 @@ void Text_box::create_TTF_surf(string str){
 
 void Text_box::create_text_shadow(SDL_Surface *orig_surf, bool outline){
 
-    SDL_Surface *mod_surf = SDL_CreateRGBSurface(0,text_rect.w, text_rect.h, 32,0xFF000000,0x00FF0000,0x0000FF00,0x000000FF); 
-
-    SDL_SetSurfaceColorMod(orig_surf, 0, 0, 0);
+	SDL_Surface *mod_surf = SDL_CreateRGBSurface(0,text_rect.w, text_rect.h, 32,0xFF000000,0x00FF0000,0x0000FF00,0x000000FF);
 
     SDL_Rect dest = { 1, 1, text_rect.w, text_rect.h };
 
@@ -274,18 +288,28 @@ void Text_box::create_text_shadow(SDL_Surface *orig_surf, bool outline){
 			}
 		}
 	} else {
+		dest.x = 2;
 		SDL_BlitSurface(orig_surf, NULL, mod_surf, &dest);
 	}
 
-    SDL_SetSurfaceColorMod(orig_surf, 255, 255, 255);
+	for(int i = 0; i < mod_surf->w; i++){
+		for(int j = 0; j < mod_surf->h; j++){
+			uint32_t *ptr = (uint32_t*)mod_surf->pixels;
 
+			int lineoffset = j * (mod_surf->pitch / sizeof( uint32_t ) );
+			if( ptr[lineoffset + i] & 0xFF ){
+				//FIXME not crossplatform!
+				ptr[lineoffset + i ] = 0xFF000000;
+			}
+		}
+	}
  	dest = { 1, 0, text_rect.w, text_rect.h };
 	SDL_BlitSurface(orig_surf, NULL, mod_surf, &dest);
 	
 	//Free the old surf
-	SDL_FreeSurface(orig_surf);
-
-	orig_surf = mod_surf;
+	SDL_SetSurfaceBlendMode(mod_surf, SDL_BLENDMODE_NONE);
+	SDL_BlitSurface(mod_surf, NULL, orig_surf, NULL);
+	SDL_FreeSurface(mod_surf);
 }
 
 void Text_box::new_text(string str){
