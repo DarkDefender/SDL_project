@@ -17,4 +17,6 @@ Shader compile_shader(std::string vert_file, std::string frag_file);
 
 GLuint *surf_to_texture(SDL_Surface *surf);
 
+GLuint *create_texture(const char *path);
+
 #endif

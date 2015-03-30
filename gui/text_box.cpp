@@ -17,16 +17,6 @@
 
 using namespace std;
 
-GLfloat UVs[] =
-{
-	0.0f, 0.0f,
-	0.0f, 1.0f,
-	1.0f, 1.0f,
-	0.0f, 0.0f,
-	1.0f, 1.0f,
-	1.0f, 0.0f
-};
-
 Shader Text_box::shader;
 bool Text_box::init_shader = true;
 
@@ -82,6 +72,17 @@ Text_box::Text_box(uint32_t x, uint32_t y, uint32_t w, uint32_t h, string font_p
 		ogl_x2,ogl_y2,0.0f,
 		ogl_x2,1.0f,0.0f
 	}; 
+
+	GLfloat UVs[] =
+	{
+		0.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+		0.0f, 0.0f,
+		1.0f, 1.0f,
+		1.0f, 0.0f
+	};
+
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 
@@ -98,6 +99,9 @@ Text_box::Text_box(uint32_t x, uint32_t y, uint32_t w, uint32_t h, string font_p
 	glBufferData(GL_ARRAY_BUFFER, 6*2*sizeof(GLfloat), UVs, GL_STATIC_DRAW);
 	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_TexCoord"), 2, GL_FLOAT, GL_FALSE, 0, 0); 
 	glEnableVertexAttribArray(glGetAttribLocation(shader.program, "in_TexCoord"));
+
+	//"Unbind" vertex array
+	glBindVertexArray(0);
 }
 
 Text_box::~Text_box(){
@@ -383,6 +387,8 @@ void Text_box::render_text(){
 	glBindTexture(GL_TEXTURE_2D, *tex_id);
 	//Draw out texbox quad
 	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	glBindVertexArray(0);
 }
 
 void Text_box::set_text_speed(uint8_t text_speed, bool ani){

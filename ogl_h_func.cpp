@@ -4,6 +4,7 @@
 #include <cstring>
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <GL/glew.h>
 
 #include "ogl_h_func.h"
@@ -189,4 +190,11 @@ GLuint *surf_to_texture(SDL_Surface *surf){
 	*id_ptr = tex_id;
 
 	return id_ptr;
+}
+
+GLuint *create_texture(const char *path){
+	SDL_Surface *image;
+	image = IMG_Load(path);
+	SDL_FreeSurface(image);
+	return surf_to_texture(image);
 }
