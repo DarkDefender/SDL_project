@@ -4,6 +4,7 @@
 #include <GL/glew.h>
 
 #include "mesh.h"
+#include "ogl_h_func.h"
 
 using namespace std;
 
@@ -31,12 +32,12 @@ void Mesh::setup_mesh(){
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
 	
 	//Vertex data
-	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_Position"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0); 
+	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_Position"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0); 
 	glEnableVertexAttribArray(glGetAttribLocation(shader.program, "in_Position"));
 	
 	//Vertex normal data
-	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_Position"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal)); 
-	glEnableVertexAttribArray(glGetAttribLocation(shader.program, "in_Position"));
+	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_Normal"), 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal)); 
+	glEnableVertexAttribArray(glGetAttribLocation(shader.program, "in_Normal"));
 
 	//UV data
 	glVertexAttribPointer(glGetAttribLocation(shader.program, "in_TexCoord"), 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords)); 
@@ -49,6 +50,9 @@ void Mesh::setup_mesh(){
 void Mesh::render(){
 	GLuint diffuseNr = 1;
     GLuint specularNr = 1;
+
+	glUseProgram(shader.program);
+
     for(GLuint i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // Activate proper texture unit before binding

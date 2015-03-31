@@ -7,6 +7,7 @@
 #include <GL/glew.h>
 
 #include "mesh.h"
+#include "ogl_h_func.h"
 
 using namespace std;
 
@@ -14,6 +15,7 @@ class GameObj {
 	/*  Model Data  */
 	vector<Mesh> meshes;
 	string mesh_dir;
+	Shader shader;
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
@@ -21,7 +23,8 @@ class GameObj {
 	vector<Texture> load_mat_tex(aiMaterial* mat, aiTextureType type, string typeName);
 	public:
 	/*  Functions   */
-	void render();	
+	void render();
+	GameObj(string mdl_path, Shader shader);
 };
 
 #endif

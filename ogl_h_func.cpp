@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <iostream>
 #include <string>
 #include <cstring>
 
@@ -8,6 +9,24 @@
 #include <GL/glew.h>
 
 #include "ogl_h_func.h"
+
+using namespace std;
+
+void printError(string functionName)
+{
+    static string lastErrorFunction;
+	static GLenum lastError;
+	GLenum error;
+   while (( error = glGetError() ) != GL_NO_ERROR)
+   {
+       if ((lastError != error) || ( functionName != lastErrorFunction))
+       {
+	       cerr << "GL error 0x" << hex << error << " detected in " << functionName << endl;
+	       lastErrorFunction = functionName;
+	       lastError = error;
+       }
+   }
+}
 
 /* A simple function that will read a file into an allocated char pointer buffer */
 char* filetobuf(const char *file)
@@ -74,7 +93,7 @@ Shader compile_shader(std::string vert_file, std::string frag_file){
  
        glGetShaderInfoLog(shader.vertex, maxLength, &maxLength, vertexInfoLog);
  
-       printf("Vert error: %s\n", vertexInfoLog);
+       printf("In file: %s\nVert error: %s\n", vert_file.c_str(), vertexInfoLog);
 
 	   /* Free the allocated char array */
        free(vertexInfoLog);
@@ -103,7 +122,7 @@ Shader compile_shader(std::string vert_file, std::string frag_file){
  
        glGetShaderInfoLog(shader.fragment, maxLength, &maxLength, fragmentInfoLog);
  
-       printf("Frag error: %s\n", fragmentInfoLog);
+       printf("In file: %s\nFrag error: %s\n", frag_file.c_str(), fragmentInfoLog);
 
 	   /* Free the allocated char array */
        free(fragmentInfoLog);
@@ -121,7 +140,7 @@ Shader compile_shader(std::string vert_file, std::string frag_file){
     glAttachShader(shader.program, shader.vertex);
     glAttachShader(shader.program, shader.fragment);
  
-    /* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (color) to in_Color */
+    /* Bind attribute index 0 (coordinates) to in_Position and attribute index 1 (normals) to in_Normal */
     /* Attribute locations must be setup before calling glLinkProgram. */
     glBindAttribLocation(shader.program, 0, "in_Position");
     glBindAttribLocation(shader.program, 1, "in_Normal");
@@ -155,6 +174,8 @@ Shader compile_shader(std::string vert_file, std::string frag_file){
 	   shader.error = true;
 	   return shader;
     }
+
+	glUseProgram(shader.program);
 
 	return shader;
 }

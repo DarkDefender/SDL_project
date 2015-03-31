@@ -13,6 +13,10 @@ struct Shader {
 	bool error = false;
 };
 
+using namespace std;
+
+void printError(string functionName);
+
 Shader compile_shader(std::string vert_file, std::string frag_file);
 
 GLuint *surf_to_texture(SDL_Surface *surf);

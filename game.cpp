@@ -7,6 +7,8 @@
 #include "gui/text_box.h"
 #include "timer.h"
 
+#include "ogl_h_func.h"
+#include "world/game_obj.h"
 
 int SDL_ToggleFS(SDL_Window *win)
 {   
@@ -39,6 +41,29 @@ int SDL_ToggleFS(SDL_Window *win)
 	return 0;
 }
 
+GLfloat modelMatrix[] = {
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, -10.0f,
+	0.0f, 0.0f, 0.0f, 1.0f };
+
+GLfloat viewMatrix[] = {
+	1.0f, 0.0f, 0.0f, 0.0f,
+	0.0f, 1.0f, 0.0f, 0.0f,
+	0.0f, 0.0f, 1.0f, 0.0f,
+	0.0f, 0.0f, 0.0f, 1.0f };
+
+#define near 1.0
+#define far 30.0
+#define right 0.5
+#define left -0.5
+#define top 0.5
+#define bottom -0.5
+GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
+                                            0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
+                                            0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
+                                            0.0f, 0.0f, -1.0f, 0.0f };
+
 void game(SDL_Window *mainwindow){
     bool done = false;
 
@@ -52,6 +77,18 @@ void game(SDL_Window *mainwindow){
 	Timer sin_timer;
 	sin_timer.start();
 	SDL_Event event;
+
+    printError("Pre game");
+
+    //Create shader for mdl rendering
+	Shader shader = compile_shader("../world/model.vert", "../world/model.frag"); 
+
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
+
+	GameObj box = GameObj("../res/box.obj", shader);
+    printError("Post box");
 
 	while( !done ){
 		while( SDL_PollEvent( &event ) != 0 ){  
@@ -109,17 +146,24 @@ void game(SDL_Window *mainwindow){
 			}
 		}
 
-        b1->set_pos(40 - 10 * sin( sin_timer.delta_s() * 10.0f ), 10 );
+		printError("Pre draw");
 
-    /* Clear our buffer with a red background */
-    glClearColor ( 1.0, 1.0, 1.0, 1.0 );
-    glClear ( GL_COLOR_BUFFER_BIT );
-	b1->render_text();
-	b2->render_text();
-    /* Swap our back buffer to the front */
-    SDL_GL_SwapWindow(mainwindow);
-    /* Wait 2 seconds */
-    //SDL_Delay(2000);
+		b1->set_pos(40 - 10 * sin( sin_timer.delta_s() * 10.0f ), 10 );
+
+		/* Clear our buffer with a red background */
+		glClearColor ( 0.5, 0.5, 0.5, 1.0 );
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//glClear ( GL_COLOR_BUFFER_BIT );
+		printError("Clear");
+		b1->render_text();
+		b2->render_text();
+		printError("Text");
+		box.render();
+		printError("Box");
+		/* Swap our back buffer to the front */
+		SDL_GL_SwapWindow(mainwindow);
+		/* Wait 2 seconds */
+		//SDL_Delay(2000);
 
 	}
 }

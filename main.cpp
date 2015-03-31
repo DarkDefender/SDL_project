@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
      * SDL doesn't have the ability to choose which profile at this time of writing,
      * but it should default to the core profile */
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE ); 
 
     /* Turn on double buffering with a 24bit Z buffer.

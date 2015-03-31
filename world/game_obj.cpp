@@ -12,6 +12,12 @@
 
 using namespace std;
 
+
+GameObj::GameObj(string mdl_path, Shader shader){
+	this->shader = shader;
+	load_model(mdl_path);
+}
+
 void GameObj::load_model(string path){
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);	
@@ -101,9 +107,6 @@ Mesh GameObj::process_mesh(aiMesh* mesh, const aiScene* scene)
 		}  
     }
 
-	//TODO load correct shaders
-    Shader shader;
-
     return Mesh(vertices, indices, textures, shader);
 }  
 
@@ -127,3 +130,9 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
     }
     return textures;
 } 
+
+void GameObj::render(){
+	for( uint32_t i=0; i < meshes.size(); i++ ) {
+		meshes[i].render();	
+	}
+}
