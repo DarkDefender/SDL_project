@@ -68,7 +68,8 @@ void game(SDL_Window *mainwindow){
     bool done = false;
 
 	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/visitor1.ttf", 10);
-	Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
+	Text_box *b2 = new Text_box(10,40,110,50,"../res/fonts/visitor1.ttf", 10);
+	//Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
     b1->new_text("Hipp, Happ, Hopp! ->");
     b2->new_text("Press enter to exit meh tutorial...");
 
@@ -155,8 +156,12 @@ void game(SDL_Window *mainwindow){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glClear ( GL_COLOR_BUFFER_BIT );
 		printError("Clear");
+		//Disable depth test for gui rendering
+		glDisable(GL_DEPTH_TEST);
 		b1->render_text();
 		b2->render_text();
+		//Enable depth test again
+		glEnable(GL_DEPTH_TEST);
 		printError("Text");
 		box.render();
 		printError("Box");

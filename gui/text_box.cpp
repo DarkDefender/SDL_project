@@ -165,9 +165,9 @@ bool Text_box::load_font(string font_path){
 	} else if (font_type == "ttf") {
 		bitmap_font = false;
 
-        if (ttf_dict.count(font_path) > 0){
-			//Only load a font once
-			ttf_font = ttf_dict[font_path];
+        if (ttf_dict.count(font_path + to_string(ttf_size)) > 0){
+			//Only load a font once (Different sizes matter!)
+			ttf_font = ttf_dict[font_path + to_string(ttf_size)];
 			return true;
 		}
 
@@ -183,7 +183,7 @@ bool Text_box::load_font(string font_path){
 		TTF_SetFontHinting(font, TTF_HINTING_NORMAL);
 
 		//Store the loaded TTF font
-		ttf_dict[font_path] = font;
+		ttf_dict[font_path + to_string(ttf_size)] = font;
 
 		ttf_font = font;
 
