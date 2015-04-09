@@ -55,8 +55,9 @@ GLfloat viewMatrix[] = {
 
 #define near 1.0
 #define far 30.0
-#define right 0.5
-#define left -0.5
+//TODO adjust right,left according to screen res
+#define right 2.0/3.0
+#define left -2.0/3.0
 #define top 0.5
 #define bottom -0.5
 GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
@@ -68,8 +69,7 @@ void game(SDL_Window *mainwindow){
     bool done = false;
 
 	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/visitor1.ttf", 10);
-	Text_box *b2 = new Text_box(10,40,110,50,"../res/fonts/visitor1.ttf", 10);
-	//Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
+	Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
     b1->new_text("Hipp, Happ, Hopp! ->");
     b2->new_text("Press enter to exit meh tutorial...");
 
@@ -156,7 +156,7 @@ void game(SDL_Window *mainwindow){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glClear ( GL_COLOR_BUFFER_BIT );
 		printError("Clear");
-		//Disable depth test for gui rendering
+        //Disable depth test for gui rendering
 		glDisable(GL_DEPTH_TEST);
 		b1->render_text();
 		b2->render_text();

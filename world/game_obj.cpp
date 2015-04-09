@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <unordered_map>
 #include <GL/glew.h>
 
 #include "mesh.h"
@@ -12,6 +13,8 @@
 
 using namespace std;
 
+
+unordered_map<string,GLuint> GameObj::texture_ids;
 
 GameObj::GameObj(string mdl_path, Shader shader){
 	this->shader = shader;
@@ -123,8 +126,15 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
 		string tex_file(str.C_Str());
 
 		//TODO only load every texture once
+		//Check if it works...
+		if( texture_ids.count(tex_file) > 0 ){
+			//already loaded this texture
+			texture.id = texture_ids[tex_file];
+		} else {
+			//Load the texture
+			texture.id = *create_texture( (mesh_dir + tex_file).c_str() );
+		}
 
-        texture.id = *create_texture( (mesh_dir + tex_file).c_str() );
         texture.type = typeName;
         textures.push_back(texture);
     }

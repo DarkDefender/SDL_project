@@ -4,6 +4,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <string>
+#include <unordered_map>
 #include <GL/glew.h>
 
 #include "mesh.h"
@@ -16,6 +17,7 @@ class GameObj {
 	vector<Mesh> meshes;
 	string mesh_dir;
 	Shader shader;
+	static unordered_map<string,GLuint> texture_ids;
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
