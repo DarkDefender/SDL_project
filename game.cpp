@@ -7,8 +7,7 @@
 #include "gui/text_box.h"
 #include "timer.h"
 
-#include "ogl_h_func.h"
-#include "world/game_obj.h"
+#include "world/level.h"
 
 int SDL_ToggleFS(SDL_Window *win)
 {   
@@ -41,30 +40,6 @@ int SDL_ToggleFS(SDL_Window *win)
 	return 0;
 }
 
-GLfloat modelMatrix[] = {
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, -10.0f,
-	0.0f, 0.0f, 0.0f, 1.0f };
-
-GLfloat viewMatrix[] = {
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f };
-
-#define near 1.0
-#define far 30.0
-//TODO adjust right,left according to screen res
-#define right 2.0/3.0
-#define left -2.0/3.0
-#define top 0.5
-#define bottom -0.5
-GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
-                                            0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
-                                            0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
-                                            0.0f, 0.0f, -1.0f, 0.0f };
-
 void game(SDL_Window *mainwindow){
     bool done = false;
 
@@ -77,21 +52,18 @@ void game(SDL_Window *mainwindow){
 
 	Timer sin_timer;
 	sin_timer.start();
+	Timer game_loop_timer;
+
 	SDL_Event event;
 
     printError("Pre game");
-
-    //Create shader for mdl rendering
-	Shader shader = compile_shader("../world/model.vert", "../world/model.frag"); 
-
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
-
-	GameObj box = GameObj("../res/box.obj", shader);
-    printError("Post box");
+	Level level = Level();
+    printError("Post level");
 
 	while( !done ){
+
+        game_loop_timer.start();
+
 		while( SDL_PollEvent( &event ) != 0 ){  
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
@@ -163,12 +135,13 @@ void game(SDL_Window *mainwindow){
 		//Enable depth test again
 		glEnable(GL_DEPTH_TEST);
 		printError("Text");
-		box.render();
-		printError("Box");
+		level.render();
+		printError("Level");
 		/* Swap our back buffer to the front */
 		SDL_GL_SwapWindow(mainwindow);
 		/* Wait 2 seconds */
 		//SDL_Delay(2000);
-
+        
+		level.update_phys( game_loop_timer.delta_s() );
 	}
 }

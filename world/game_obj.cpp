@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <GL/glew.h>
 
+#include <btBulletDynamicsCommon.h>
+
 #include "mesh.h"
 #include "ogl_h_func.h"
 #include "game_obj.h"
@@ -15,10 +17,77 @@ using namespace std;
 
 
 unordered_map<string,GLuint> GameObj::texture_ids;
+unordered_map<string,btCollisionShape*> GameObj::obj_coll_shape;
+btDiscreteDynamicsWorld* GameObj::phys_world = NULL; 
 
 GameObj::GameObj(string mdl_path, Shader shader){
 	this->shader = shader;
 	load_model(mdl_path);
+
+	inited = false;
+	phys_body = NULL;
+
+    string body_type = "box";
+
+	if(obj_coll_shape.count(body_type) == 0){
+		//TODO add proper shape creation based on string
+		//TODO clean up shape objects when they are not needed anymore
+		if(body_type == "box"){
+			obj_coll_shape[body_type] = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
+		} else {
+			obj_coll_shape[body_type] = new btCapsuleShape(0.25f, 0.5f);
+			//obj_coll_shape[body_type] = new btSphereShape(0.5f);
+		}
+	}
+	body_shape = obj_coll_shape[body_type];
+
+	if(phys_world != NULL){
+      //We have set all everything required to init!
+	  init();
+	}
+}
+
+void GameObj::init(){
+	if(inited){
+		clean_up();
+	} else {
+		inited = true;
+	}
+	btQuaternion quat;
+	quat.setEuler(0, 0, 0);
+	btDefaultMotionState* MotionState =
+		new btDefaultMotionState(btTransform(quat , btVector3(0, 0, 0)));
+	btScalar mass = 10;
+	btVector3 Inertia(0, 0, 0);
+	//TODO calc Inertia only works on certain shapes
+	body_shape->calculateLocalInertia(mass, Inertia);
+	btRigidBody::btRigidBodyConstructionInfo RigidBodyCI(mass, MotionState, body_shape, Inertia);
+	phys_body = new btRigidBody(RigidBodyCI);
+
+	//Add this GameObject to the bullet for when we do collision detection (health etc)
+	phys_body->setUserPointer(this);
+
+	//TODO only for certain situations!
+	phys_body->setActivationState(DISABLE_DEACTIVATION);
+
+	//Prevent tunneling
+	//setup motion clamping so no tunneling occurs
+	//phys_body->setCcdMotionThreshold(1);
+	//phys_body->setCcdSweptSphereRadius(0.2f);
+	
+	phys_world->addRigidBody(phys_body);
+}
+
+void GameObj::clean_up(){
+	phys_world->removeRigidBody(phys_body);
+	delete phys_body->getMotionState();
+	delete phys_body; 
+}
+
+GameObj::~GameObj(){
+	if( inited ){
+		clean_up();
+	}
 }
 
 void GameObj::load_model(string path){
@@ -142,7 +211,31 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
 } 
 
 void GameObj::render(){
-	for( uint32_t i=0; i < meshes.size(); i++ ) {
-		meshes[i].render();	
+    if(!inited){
+	   cerr << "Tried to render un-inited object" << endl;
+	   return;
 	}
+
+	//Render the object at the bullet phys sim location
+	//Get the transformation of the body into an OpenGL matrix
+    btTransform trans;
+    phys_body->getMotionState()->getWorldTransform(trans);
+    btScalar m[16];
+    trans.getOpenGLMatrix(m);
+
+	//Transpose matrix so we get a correct gl matirx...
+	btScalar m_t[16];
+	for(int i = 0; i < 4; i++){
+		for(int j = 0; j < 4; j++){
+			m_t[j*4 + i] = m[i*4 + j];
+		}
+	}
+
+	for( uint32_t i=0; i < meshes.size(); i++ ) {
+		meshes[i].render(m_t);	
+	}
+}
+
+void GameObj::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
+	phys_world = new_phys_world;
 }

@@ -14,18 +14,18 @@ using namespace std;
 
 void printError(string functionName)
 {
-    static string lastErrorFunction;
+	static string lastErrorFunction;
 	static GLenum lastError;
 	GLenum error;
-   while (( error = glGetError() ) != GL_NO_ERROR)
-   {
-       if ((lastError != error) || ( functionName != lastErrorFunction))
-       {
-	       cerr << "GL error 0x" << hex << error << " detected in " << functionName << endl;
-	       lastErrorFunction = functionName;
-	       lastError = error;
-       }
-   }
+	while (( error = glGetError() ) != GL_NO_ERROR)
+	{
+		if ((lastError != error) || ( functionName != lastErrorFunction))
+		{
+			cerr << "GL error 0x" << hex << error << " detected in " << functionName << endl;
+			lastErrorFunction = functionName;
+			lastError = error;
+		}
+	}
 }
 
 /* A simple function that will read a file into an allocated char pointer buffer */

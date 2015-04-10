@@ -47,11 +47,13 @@ void Mesh::setup_mesh(){
 	glBindVertexArray(0);
 }
 
-void Mesh::render(){
+void Mesh::render(GLfloat *model_mat){
 	GLuint diffuseNr = 1;
     GLuint specularNr = 1;
 
 	glUseProgram(shader.program);
+
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, model_mat);
 
     for(GLuint i = 0; i < textures.size(); i++)
     {
