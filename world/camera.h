@@ -16,6 +16,9 @@ class Camera {
 		//Have to keep track of cur pos because look_at modifies the location in trans
 		btVector3 cur_pos = btVector3(0,0,0);
 
+        vector<btVector3> waypoints;
+		uint32_t waypoint = 0;
+
 		Timer update_timer;
 	public:
 		Camera();
@@ -42,6 +45,9 @@ class Camera {
 
         void look_at(btVector3 l);
         void look_at(GLfloat x, GLfloat y, GLfloat z);
+
+		void add_waypoint(btVector3 pos);
+		void add_waypoint(GLfloat x, GLfloat y, GLfloat z);
 
 		void update();
 

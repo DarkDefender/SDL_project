@@ -103,17 +103,42 @@ void Camera::look_at(GLfloat x, GLfloat y, GLfloat z){
 	look_at(btVector3(x,y,z));
 }
 
+void Camera::add_waypoint(btVector3 pos){
+	waypoints.push_back(pos);
+}
+void Camera::add_waypoint(GLfloat x, GLfloat y, GLfloat z){
+	add_waypoint(btVector3(x,y,z));
+}
+
 void Camera::update(){
     // TODO update camera to follow and track points and objects
     if(!update_timer.isStarted()){
 		update_timer.start();
 	}
 
-	if(update_timer.delta_s() > 0.01f){
-		update_timer.start();
-		move(0.01,0,0);
-		look_at(0,0,0);
+    float delta_s = update_timer.delta_s();
+	float move_speed = 5.0f;
+
+	if( waypoints.size() > 0 ){
+		float dist = cur_pos.distance(waypoints[waypoint]);
+
+        float move_dist = move_speed*delta_s;
+
+		if( dist > move_dist){
+			move((waypoints[waypoint] - cur_pos).normalized() * move_dist);
+		} else {
+			move((waypoints[(waypoint + 1) % waypoints.size()] - waypoints[waypoint]).normalized() * (move_dist - dist));
+			waypoint++;
+			cout << "way: " << waypoint << endl;
+		}
+
+		if( waypoint >= waypoints.size() ){
+			waypoint = 0;
+		}
 	}
+
+	update_timer.start();
+	look_at(0,0,0);
 }
 
 void Camera::OGL_mat(GLfloat *m){

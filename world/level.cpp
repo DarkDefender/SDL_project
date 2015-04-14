@@ -39,6 +39,11 @@ Level::Level(){
     GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
 
+    camera.add_waypoint(btVector3(10,0,10));
+    camera.add_waypoint(btVector3(-10,0,10));
+    camera.add_waypoint(btVector3(-10,0,-10));
+    camera.add_waypoint(btVector3(10,0,-10));
+
     //Create shader for mdl rendering
 	shader = compile_shader("../world/model.vert", "../world/model.frag"); 
 
