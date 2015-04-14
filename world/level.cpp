@@ -3,18 +3,15 @@
 
 #include <list>
 #include "game_obj.h"
+#include <GL/glew.h>
 #include "ogl_h_func.h"
+#include "camera.h"
+#include "timer.h"
 
 GLfloat modelMatrix[] = {
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
 	0.0f, 0.0f, 1.0f, 0.0f,
-	0.0f, 0.0f, 0.0f, 1.0f };
-
-GLfloat viewMatrix[] = {
-	1.0f, 0.0f, 0.0f, 0.0f,
-	0.0f, 1.0f, 0.0f, 0.0f,
-	0.0f, 0.0f, 1.0f, -10.0f,
 	0.0f, 0.0f, 0.0f, 1.0f };
 
 #define near 1.0
@@ -34,10 +31,16 @@ Level::Level(){
 
 	//Set game obj phys world before loading any level objects
 	GameObj::set_phys_world(dynamicsWorld);
+	//phys_timer.start();
 	//Load objects
 	
+    //Setup camera
+	camera = Camera(0,0,-10.0f);
+    GLfloat viewMatrix[16];
+	camera.OGL_mat(viewMatrix);
+
     //Create shader for mdl rendering
-	Shader shader = compile_shader("../world/model.vert", "../world/model.frag"); 
+	shader = compile_shader("../world/model.vert", "../world/model.frag"); 
 
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
@@ -114,6 +117,20 @@ void Level::create_terrain(){
 
 void Level::update_phys(float delta_s){
 	dynamicsWorld->stepSimulation(delta_s);
+}
+
+void Level::update(){
+	if(phys_timer.isStarted()){
+		update_phys( phys_timer.delta_s() );
+		phys_timer.start();
+	}
+    //Update camera
+	camera.update();
+
+	GLfloat viewMatrix[16];
+	camera.OGL_mat(viewMatrix);
+    glUseProgram(shader.program);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
 }
 
 void Level::render(){

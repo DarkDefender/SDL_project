@@ -3,12 +3,19 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <list>
+#include <GL/glew.h>
 #include "game_obj.h"
+#include "camera.h"
+#include "timer.h"
 
 using namespace std;
 
 class Level {
     list<GameObj*> obj_list;
+    Camera camera;
+	Timer phys_timer;
+
+    Shader shader;
 
 	//Bullet
 	btBroadphaseInterface* broadphase;
@@ -30,6 +37,7 @@ class Level {
 	~Level();
 
 	void update_phys(float delta_s);
+	void update();
 	void render();
 };
 

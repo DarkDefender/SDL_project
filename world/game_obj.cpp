@@ -27,7 +27,7 @@ GameObj::GameObj(string mdl_path, Shader shader){
 	inited = false;
 	phys_body = NULL;
 
-    string body_type = "box";
+    string body_type = "boxy";
 
 	if(obj_coll_shape.count(body_type) == 0){
 		//TODO add proper shape creation based on string

@@ -52,7 +52,6 @@ void game(SDL_Window *mainwindow){
 
 	Timer sin_timer;
 	sin_timer.start();
-	Timer game_loop_timer;
 
 	SDL_Event event;
 
@@ -61,9 +60,6 @@ void game(SDL_Window *mainwindow){
     printError("Post level");
 
 	while( !done ){
-
-        game_loop_timer.start();
-
 		while( SDL_PollEvent( &event ) != 0 ){  
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
@@ -142,6 +138,6 @@ void game(SDL_Window *mainwindow){
 		/* Wait 2 seconds */
 		//SDL_Delay(2000);
         
-		level.update_phys( game_loop_timer.delta_s() );
+		level.update();
 	}
 }
