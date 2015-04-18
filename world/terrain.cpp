@@ -4,7 +4,6 @@
 #include "terrain.h"
 
 Terrain::Terrain() {
-	
 	load_h_map("meh...");
 }
 void Terrain::load_h_map(string path){

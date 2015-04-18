@@ -15,12 +15,17 @@ class Camera {
 		btVector3 follow_offset = btVector3(0,0,0);
 		//Have to keep track of cur pos because look_at modifies the location in trans
 		btVector3 cur_pos = btVector3(0,0,0);
+		btVector3 view_dir = btVector3(0,0,1);
 
-        vector<btVector3> waypoints;
+		vector<btVector3> waypoints;
 		uint32_t waypoint = 0;
+
+		bool manual = true;
 
 		Timer update_timer;
 	public:
+        int move_x = 0, move_y = 0;
+
 		Camera();
 		Camera(btVector3 start_pos);
 		Camera(GLfloat x, GLfloat y, GLfloat z);
@@ -48,6 +53,8 @@ class Camera {
 
 		void add_waypoint(btVector3 pos);
 		void add_waypoint(GLfloat x, GLfloat y, GLfloat z);
+
+		void set_manual(bool man);
 
 		void update();
 

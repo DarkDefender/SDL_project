@@ -23,7 +23,6 @@ Camera::Camera(GLfloat x, GLfloat y, GLfloat z){
 
 void Camera::set_pos(btVector3 pos){
 	cur_pos = pos;
-	trans.setOrigin(pos);
 }
 void Camera::set_pos(GLfloat dx, GLfloat dy, GLfloat dz){
     btVector3 pos = btVector3(dx,dy,dz);
@@ -40,16 +39,23 @@ void Camera::move(GLfloat dx, GLfloat dy, GLfloat dz){
 }
 
 void Camera::rotate(btVector3 d_rot){
-    btQuaternion quat;
+	btQuaternion quat;
 
-	quat.setEuler(d_rot[0], d_rot[1], d_rot[2]);
+	//TODO handle if we want to rotate the camera in other ways.
+	quat.setEuler(d_rot[0], 0, 0);
 
-    btTransform trans2;
-	trans2.setIdentity();
+	btTransform trans_x, trans_y;
+	trans_x.setIdentity();
+	trans_y.setIdentity();
 
-	trans2.setRotation(quat);
+	trans_x.setRotation(quat);
 
-	trans = trans2 * trans;
+	quat.setRotation( view_dir.cross(btVector3(0,1,0)), d_rot[1]);
+	trans_y.setRotation(quat);
+
+	view_dir = trans_x * trans_y * view_dir;
+
+	look_at(view_dir + cur_pos);
 }
 void Camera::rotate(GLfloat dx, GLfloat dy, GLfloat dz){
 	rotate( btVector3(dx,dy,dz) );
@@ -80,7 +86,7 @@ void Camera::set_follow_offset(GLfloat x, GLfloat y, GLfloat z){
 void Camera::look_at(btVector3 l){
     //Camera "up" axis
 	btVector3 v = btVector3(0,1,0);
-	btVector3 p = trans.getOrigin();
+	btVector3 p = cur_pos;
     btVector3 n,u;
 
 	n = (p - l).normalized();
@@ -110,6 +116,10 @@ void Camera::add_waypoint(GLfloat x, GLfloat y, GLfloat z){
 	add_waypoint(btVector3(x,y,z));
 }
 
+void Camera::set_manual(bool man){
+	manual = man;
+}
+
 void Camera::update(){
     // TODO update camera to follow and track points and objects
     if(!update_timer.isStarted()){
@@ -118,11 +128,20 @@ void Camera::update(){
 
     float delta_s = update_timer.delta_s();
 	float move_speed = 5.0f;
+    float move_dist = move_speed*delta_s;
+
+	if(manual){
+        move(view_dir * move_dist * move_y);
+        move(view_dir.cross(btVector3(0,1,0)) * move_dist * move_x);
+
+		look_at(view_dir + cur_pos);
+
+		update_timer.start();
+		return;
+	}
 
 	if( waypoints.size() > 0 ){
 		float dist = cur_pos.distance(waypoints[waypoint]);
-
-        float move_dist = move_speed*delta_s;
 
 		if( dist > move_dist){
 			move((waypoints[waypoint] - cur_pos).normalized() * move_dist);

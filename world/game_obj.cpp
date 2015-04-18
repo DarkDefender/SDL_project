@@ -119,7 +119,7 @@ void GameObj::process_node(aiNode* node, const aiScene* scene)
     }
 }  
 
-Mesh GameObj::process_mesh(aiMesh* mesh, const aiScene* scene)
+Mesh* GameObj::process_mesh(aiMesh* mesh, const aiScene* scene)
 {
     vector<Vertex> vertices;
     vector<GLuint> indices;
@@ -176,7 +176,7 @@ Mesh GameObj::process_mesh(aiMesh* mesh, const aiScene* scene)
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}  
 
-    return Mesh(vertices, indices, textures, shader);
+    return new Mesh(vertices, indices, textures, shader);
 }  
 
 //Load material textures
@@ -229,7 +229,7 @@ void GameObj::render(){
 	}
 
 	for( uint32_t i=0; i < meshes.size(); i++ ) {
-		meshes[i].render(m_t);	
+		meshes[i]->render(m_t);	
 	}
 }
 

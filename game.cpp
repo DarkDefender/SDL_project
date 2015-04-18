@@ -55,6 +55,9 @@ void game(SDL_Window *mainwindow){
 
 	SDL_Event event;
 
+    // Set mouse to relative mode
+	SDL_SetRelativeMouseMode( SDL_TRUE );
+
     printError("Pre game");
 	Level level = Level();
     printError("Post level");
@@ -77,12 +80,13 @@ void game(SDL_Window *mainwindow){
 							break;
 					}
 					break;
-					/*
-					   case SDL_MOUSEMOTION:
-					   int mouseX = event.motion.x;
-					   int mouseY = event.motion.y;
-					   break;
-					   */
+				case SDL_MOUSEMOTION:
+					//int mouseX = event.motion.x;
+					//int mouseY = event.motion.y;
+
+					level.camera.rotate( -event.motion.xrel / 1000.0f, -event.motion.yrel / 1000.0f, 0);
+
+					break;
 				case SDL_KEYDOWN:
 					if(event.key.repeat){
 						// We don't want to handle key repeats
@@ -90,23 +94,26 @@ void game(SDL_Window *mainwindow){
 					}
 					switch (event.key.keysym.sym)
 					{
-						case SDLK_f:  SDL_ToggleFS(mainwindow); break;
-						case SDLK_a:  
+					   case SDLK_f:  SDL_ToggleFS(mainwindow); break;
+					   case SDLK_b:  
 									  b2->new_text("asdas dasd adasdas dasda sdasd asdasd asda sdasd asd adasd asda dasdas dasd asdasd asd a");
 									  break;
+					   case SDLK_a: level.camera.move_x = -1; break;
+					   case SDLK_d: level.camera.move_x = 1; break;
+					   case SDLK_w: level.camera.move_y = 1; break;
+					   case SDLK_s: level.camera.move_y = -1; break;
 					}
 					break;
-					/*
-					   case SDL_KEYUP:
-					   switch (event.key.keysym.sym)
-					   {
-					   case SDLK_a:  player->set_move_dir(-left); break;
-					   case SDLK_d: player->set_move_dir(-right); break;
-					   case SDLK_w:    player->stop_jump(); break;
-					//case SDLK_SPACE: rota = !rota; break;
+				case SDL_KEYUP:
+					switch (event.key.keysym.sym)
+					{
+						case SDLK_a:  level.camera.move_x = 0; break;
+						case SDLK_d: level.camera.move_x = 0; break;
+						case SDLK_w: level.camera.move_y = 0; break;
+						case SDLK_s: level.camera.move_y = 0; break;
+						//case SDLK_SPACE: rota = !rota; break;
 					}
 					break;
-					*/
 				case SDL_QUIT:
 					done = 1;
 					break;

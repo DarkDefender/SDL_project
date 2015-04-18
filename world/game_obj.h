@@ -16,7 +16,7 @@ using namespace std;
 
 class GameObj {
 	/*  Model Data  */
-	vector<Mesh> meshes;
+	vector<Mesh*> meshes;
 	string mesh_dir;
 	Shader shader;
     
@@ -33,7 +33,7 @@ class GameObj {
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
-	Mesh process_mesh(aiMesh* mesh, const aiScene* scene);
+	Mesh* process_mesh(aiMesh* mesh, const aiScene* scene);
 	vector<Texture> load_mat_tex(aiMaterial* mat, aiTextureType type, string typeName);
 	void clean_up();
 	public:

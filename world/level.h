@@ -12,7 +12,6 @@ using namespace std;
 
 class Level {
     list<GameObj*> obj_list;
-    Camera camera;
 	Timer phys_timer;
 
     Shader shader;
@@ -35,6 +34,8 @@ class Level {
 	public:
 	Level();
 	~Level();
+
+    Camera camera;
 
 	void update_phys(float delta_s);
 	void update();
