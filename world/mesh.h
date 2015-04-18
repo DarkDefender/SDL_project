@@ -48,6 +48,7 @@ class Mesh {
 	vector<Texture> textures;
 	// Functions
 	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader);
+	~Mesh();
 	void render(GLfloat *model_mat);
 };
 

@@ -215,7 +215,17 @@ GLuint *surf_to_texture(SDL_Surface *surf){
 
 GLuint *create_texture(const char *path){
 	SDL_Surface *image;
+	GLuint *tex_id;
+
 	image = IMG_Load(path);
+
+	if ( !image )
+	{
+		printf ( "IMG_Load: %s\n", IMG_GetError () );
+		return NULL;
+	}
+
+	tex_id = surf_to_texture(image);
 	SDL_FreeSurface(image);
-	return surf_to_texture(image);
+	return tex_id;
 }

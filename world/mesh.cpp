@@ -17,6 +17,12 @@ Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> text
 	setup_mesh();
 }
 
+Mesh::~Mesh(){
+	glDeleteVertexArrays(1, &vao);
+	glDeleteBuffers(1, &vbo);
+	glDeleteBuffers(1, &ebo);
+}
+
 void Mesh::setup_mesh(){
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);

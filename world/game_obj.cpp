@@ -67,7 +67,7 @@ void GameObj::init(){
 	//Add this GameObject to the bullet for when we do collision detection (health etc)
 	phys_body->setUserPointer(this);
 
-	//TODO only for certain situations!
+	// TODO only for certain situations!
 	phys_body->setActivationState(DISABLE_DEACTIVATION);
 
 	//Prevent tunneling
@@ -165,19 +165,16 @@ Mesh GameObj::process_mesh(aiMesh* mesh, const aiScene* scene)
 		}
 	}  
 	
-    // Process material
-    if(mesh->mMaterialIndex >= 0)
-    {
-		if(mesh->mMaterialIndex >= 0)
-		{
-			aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-			vector<Texture> diffuseMaps = load_mat_tex(material, aiTextureType_DIFFUSE, "texture_diffuse");
-			textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-			
-			vector<Texture> specularMaps = load_mat_tex(material, aiTextureType_SPECULAR, "texture_specular");
-			textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
-		}  
-    }
+	// Process material
+	if(mesh->mMaterialIndex >= 0)
+	{
+		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+		vector<Texture> diffuseMaps = load_mat_tex(material, aiTextureType_DIFFUSE, "texture_diffuse");
+		textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
+
+		vector<Texture> specularMaps = load_mat_tex(material, aiTextureType_SPECULAR, "texture_specular");
+		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
+	}  
 
     return Mesh(vertices, indices, textures, shader);
 }  
@@ -195,7 +192,7 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
 		string tex_file(str.C_Str());
 
 		//TODO only load every texture once
-		//Check if it works...
+		// ^ Done, check if it works...
 		if( texture_ids.count(tex_file) > 0 ){
 			//already loaded this texture
 			texture.id = texture_ids[tex_file];
