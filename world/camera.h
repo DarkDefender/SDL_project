@@ -15,7 +15,7 @@ class Camera {
 		btVector3 follow_offset = btVector3(0,0,0);
 		//Have to keep track of cur pos because look_at modifies the location in trans
 		btVector3 cur_pos = btVector3(0,0,0);
-		btVector3 view_dir = btVector3(0,0,1);
+		btVector3 view_dir = btVector3(0,0,-1);
 
 		vector<btVector3> waypoints;
 		uint32_t waypoint = 0;

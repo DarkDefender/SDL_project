@@ -6,15 +6,18 @@
 #include <GL/glew.h>
 #include "game_obj.h"
 #include "camera.h"
+#include "terrain.h"
 #include "timer.h"
 
 using namespace std;
 
 class Level {
     list<GameObj*> obj_list;
+	Terrain* ter;
 	Timer phys_timer;
 
     Shader shader;
+    Shader terrain_shader;
 
 	//Bullet
 	btBroadphaseInterface* broadphase;

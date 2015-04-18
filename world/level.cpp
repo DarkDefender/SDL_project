@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include "ogl_h_func.h"
 #include "camera.h"
+#include "terrain.h"
 #include "timer.h"
 
 GLfloat modelMatrix[] = {
@@ -15,7 +16,7 @@ GLfloat modelMatrix[] = {
 	0.0f, 0.0f, 0.0f, 1.0f };
 
 #define near 1.0
-#define far 30.0
+#define far 3000.0
 //TODO adjust right,left according to screen res
 #define right 2.0/3.0
 #define left -2.0/3.0
@@ -35,7 +36,7 @@ Level::Level(){
 	//Load objects
 	
     //Setup camera
-	camera = Camera(0,0,-10.0f);
+	camera = Camera(0,0,10.0f);
     GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
 
@@ -52,6 +53,14 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
 
 	obj_list.push_back(new GameObj("../res/box.obj", shader));
+
+	//Create terrain shader
+    terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
+	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
+
+	ter = new Terrain(terrain_shader);
 }
 
 Level::~Level(){
@@ -136,9 +145,14 @@ void Level::update(){
 	camera.OGL_mat(viewMatrix);
     glUseProgram(shader.program);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
+    glUseProgram(terrain_shader.program);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
 }
 
 void Level::render(){
+
+	ter->render();
+
     for (auto it = obj_list.begin(); it != obj_list.end(); it++){
 		(*it)->render();
 	}
