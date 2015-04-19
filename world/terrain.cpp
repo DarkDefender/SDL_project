@@ -12,7 +12,7 @@ using namespace std;
 Terrain::Terrain(Shader terr_shade) {
 	//TODO clean up generated terrain when it's not needed anymore
 	shader = terr_shade;
-	load_h_map("fft-terrain.tga");
+	load_h_map("44-terrain.tga");
 }
 
 void Terrain::load_h_map(string path){
@@ -38,7 +38,7 @@ void Terrain::load_h_map(string path){
 	for (int x = 0; x < img->w; x++) {
 		for (int z = 0; z < img->h; z++)
 		{
-			float height_scale = 10.0;
+			float height_scale = 100.0;
 			uint8_t *ptr = (uint8_t*)img->pixels;
 			// TODO scale this properly
 			float cur_y_pos = ptr[(x + z * img->w) * img->format->BitsPerPixel/8] / height_scale;
@@ -60,8 +60,8 @@ void Terrain::load_h_map(string path){
                 btVector3 bt_p1 = btVector3(pos1.x, pos1.y, pos1.z);
                 btVector3 bt_p2 = btVector3(pos2.x, pos2.y, pos2.z);
 
-                bt_p1 = cur_pos - bt_p1 ;
-                bt_p2 = cur_pos - bt_p2;
+                bt_p1 = bt_p1 - cur_pos ;
+                bt_p2 = bt_p2 - cur_pos;
 				bt_p1 = bt_p2.cross(bt_p1);
 				bt_p1.normalize();
 				cur_nor = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());

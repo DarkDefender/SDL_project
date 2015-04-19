@@ -50,8 +50,11 @@ void game(SDL_Window *mainwindow){
 
     b2->set_text_speed(100, true);
 
-	Timer sin_timer;
+	Timer sin_timer, frame_timer;
 	sin_timer.start();
+	frame_timer.start();
+
+	int frames = 0;
 
 	SDL_Event event;
 
@@ -131,6 +134,8 @@ void game(SDL_Window *mainwindow){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//glClear ( GL_COLOR_BUFFER_BIT );
 		printError("Clear");
+		level.render();
+		printError("Level");
         //Disable depth test for gui rendering
 		glDisable(GL_DEPTH_TEST);
 		b1->render_text();
@@ -138,13 +143,17 @@ void game(SDL_Window *mainwindow){
 		//Enable depth test again
 		glEnable(GL_DEPTH_TEST);
 		printError("Text");
-		level.render();
-		printError("Level");
 		/* Swap our back buffer to the front */
 		SDL_GL_SwapWindow(mainwindow);
 		/* Wait 2 seconds */
 		//SDL_Delay(2000);
         
 		level.update();
+		frames++;
+		if( frame_timer.delta_s() >= 1 ){
+			b1->new_text("FPS: " + to_string(frames));
+			frames = 0;
+			frame_timer.start();
+		}
 	}
 }

@@ -38,6 +38,7 @@ struct Texture {
 class Mesh {
 	// Render data
 	GLuint vao, vbo, ebo;
+	GLenum vbo_mode;
 	Shader shader;
 	// Functions
 	void setup_mesh();
@@ -47,8 +48,9 @@ class Mesh {
 	vector<GLuint> indices;
 	vector<Texture> textures;
 	// Functions
-	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader);
+	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader, GLenum vbo_mode = GL_STATIC_DRAW);
 	~Mesh();
+	void update_vbo(vector<uint32_t> update_pos);
 	void render(GLfloat *model_mat);
 };
 

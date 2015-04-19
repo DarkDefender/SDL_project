@@ -9,11 +9,12 @@
 
 using namespace std;
 
-Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader){
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader, GLenum vbo_mode){
     this->vertices = vertices;
     this->indices = indices;
     this->textures = textures;  
 	this->shader = shader;
+    this->vbo_mode = vbo_mode;
 
 	setup_mesh();
 }
@@ -34,7 +35,7 @@ void Mesh::setup_mesh(){
 
 	//The Vertex struct can be used as one big array. So we store all the mesh data in a single VBO 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);  
+	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], vbo_mode);  
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), &indices[0], GL_STATIC_DRAW);
@@ -53,6 +54,14 @@ void Mesh::setup_mesh(){
 
 	//"Unbind" vertex array
 	glBindVertexArray(0);
+}
+
+void Mesh::update_vbo(vector<uint32_t> update_pos){
+	if(vbo_mode == GL_STATIC_DRAW){
+		cout << "Can't update a static draw VBO!\n";
+		return;
+	}
+
 }
 
 void Mesh::render(GLfloat *model_mat){
