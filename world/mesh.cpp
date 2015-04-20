@@ -4,6 +4,8 @@
 #include <sstream>
 #include <GL/glew.h>
 
+#include <algorithm>
+
 #include "mesh.h"
 #include "ogl_h_func.h"
 
@@ -62,6 +64,29 @@ void Mesh::update_vbo(vector<uint32_t> update_pos){
 		return;
 	}
 
+	//Sort the vector so we can easily check if multiple verts can be updated in one go
+	sort(update_pos.begin(), update_pos.end());
+
+    uint32_t start_pos = 0;
+    uint32_t update_range = 1;
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	//Check how many verts we can update in one go
+    for(uint32_t i = 0; i < update_pos.size(); i++){
+		if(update_range == 1){
+			start_pos = update_pos[i];	
+		}
+
+		if(i + 1 < update_pos.size()){
+			if( update_pos[i] + 1 == update_pos[i+1] ){
+				update_range++;
+				continue;
+			}
+		}
+
+		glBufferSubData(GL_ARRAY_BUFFER, start_pos * sizeof(Vertex), update_range * sizeof(Vertex), &vertices[start_pos]);
+		update_range = 1;
+	}
 }
 
 void Mesh::render(GLfloat *model_mat){

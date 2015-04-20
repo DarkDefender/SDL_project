@@ -47,6 +47,7 @@ class Mesh {
 	vector<Vertex> vertices;
 	vector<GLuint> indices;
 	vector<Texture> textures;
+
 	// Functions
 	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader, GLenum vbo_mode = GL_STATIC_DRAW);
 	~Mesh();

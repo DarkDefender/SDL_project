@@ -32,7 +32,7 @@ Level::Level(){
 
 	//Set game obj phys world before loading any level objects
 	GameObj::set_phys_world(dynamicsWorld);
-	//phys_timer.start();
+	phys_timer.start();
 	//Load objects
 	
     //Setup camera
