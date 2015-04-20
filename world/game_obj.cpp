@@ -207,6 +207,22 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
     return textures;
 } 
 
+void GameObj::teleport(btVector3 new_pos){
+	//Remove it from the world while teleporting
+	phys_world->removeRigidBody( phys_body );
+
+	btTransform trans = phys_body->getWorldTransform();
+	trans.setOrigin( new_pos );
+	//trans.setRotation( new_rot );
+	phys_body->setWorldTransform( trans );
+
+	phys_world->addRigidBody( phys_body );
+}
+
+void GameObj::teleport(GLfloat x, GLfloat y, GLfloat z){
+	teleport(btVector3(x,y,z));
+}
+
 void GameObj::render(){
     if(!inited){
 	   cerr << "Tried to render un-inited object" << endl;

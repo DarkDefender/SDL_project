@@ -38,6 +38,8 @@ class GameObj {
 	void clean_up();
 	public:
 	/*  Functions   */
+	void teleport(btVector3 new_pos);
+	void teleport(GLfloat x, GLfloat y, GLfloat z);
 	void render();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 

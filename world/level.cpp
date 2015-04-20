@@ -32,11 +32,13 @@ Level::Level(){
 
 	//Set game obj phys world before loading any level objects
 	GameObj::set_phys_world(dynamicsWorld);
+	Terrain::set_phys_world(dynamicsWorld);
 	phys_timer.start();
 	//Load objects
 	
     //Setup camera
-	camera = Camera(0,0,10.0f);
+	camera = Camera(0,10.0f,-10.0f);
+	camera.rotate(-2.7,0,0);
     GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
 
@@ -53,6 +55,8 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
 
 	obj_list.push_back(new GameObj("../res/box.obj", shader));
+	//TODO work on swap locations
+	obj_list.front()->teleport(10,10,10);
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
@@ -64,19 +68,11 @@ Level::Level(){
 }
 
 Level::~Level(){
+	//TODO clean up the phys objects from all game and terrain objects
 	del_bullet_world();
 }
 
 void Level::del_bullet_world(){
-	
-	dynamicsWorld->removeRigidBody(levelRigidBody);
-	delete levelRigidBody->getMotionState();
-	delete levelRigidBody;
-
-	delete mTriMeshShape;
-
-	delete level_trimesh; 
-
     // Clean up behind ourselves like good little programmers
     delete dynamicsWorld;
     delete solver;
@@ -105,28 +101,6 @@ void Level::setup_bullet_world(){
 	//dynamicsWorld->setGravity(grav_vec);
 
     //---- END BULLET INIT
-	
-	create_terrain();
-	mTriMeshShape = new btBvhTriangleMeshShape(level_trimesh,true);
-	btDefaultMotionState* levelMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
-	
-	btRigidBody::btRigidBodyConstructionInfo
-		levelRigidBodyCI(0, levelMotionState, mTriMeshShape, btVector3(0, 0, 0));
-	levelRigidBody = new btRigidBody(levelRigidBodyCI);
-	//dynamicsWorld->addRigidBody(levelRigidBody, COL_WALL, wallCollidesWith);
-	dynamicsWorld->addRigidBody(levelRigidBody);
-}
-
-void Level::create_terrain(){
-	level_trimesh = new btTriangleMesh();
-	//Create a basic plane to start with
-	level_trimesh->addTriangle( btVector3(-1, -1 , -1),
-			btVector3(-1, -1 , 1),
-			btVector3(1, -1 , 1));
-
-	level_trimesh->addTriangle( btVector3(1, -1 , 1),
-			btVector3(1, -1 , -1),
-			btVector3(-1, -1 , -1));
 }
 
 void Level::update_phys(float delta_s){

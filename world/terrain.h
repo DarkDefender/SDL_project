@@ -17,13 +17,19 @@ class Terrain {
 
 	uint32_t w, h;
 
-    btVector3* phys_verts; 
+	static btDiscreteDynamicsWorld* phys_world;
+	btBvhTriangleMeshShape* phys_tri_mesh = NULL;
+	btRigidBody* phys_body = NULL;
+	btTriangleIndexVertexArray* phys_idx_vert_arr = NULL;
 
 	void water_sim();
 	void load_h_map(string path);
-
+    void gen_phys_body();
+	
 	public:
 	Terrain(Shader terr_shade);
+	~Terrain();
+	static void set_phys_world(btDiscreteDynamicsWorld* new_phys_world);
 	void render();
 };
 

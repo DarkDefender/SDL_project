@@ -11,11 +11,25 @@
 
 using namespace std;
 
+btDiscreteDynamicsWorld* Terrain::phys_world = NULL;
+
 Terrain::Terrain(Shader terr_shade) {
 	//TODO clean up generated terrain when it's not needed anymore
 	shader = terr_shade;
 	load_h_map("fft-terrain.tga");
 	water_timer.start();
+}
+
+Terrain::~Terrain(){
+	if( phys_world != NULL && phys_body != NULL ){
+		phys_world->removeRigidBody(phys_body);
+		delete phys_body->getMotionState();
+		delete phys_body; 
+
+        delete phys_tri_mesh;
+
+		delete phys_idx_vert_arr;
+	}
 }
 
 void Terrain::load_h_map(string path){
@@ -105,6 +119,12 @@ void Terrain::load_h_map(string path){
 	vector<Texture> tex_vec;
 
 	terrain_mesh = new Mesh(vertices, indices, tex_vec, shader, GL_DYNAMIC_DRAW);
+
+	if(phys_world == NULL){
+		cout << "No phys world when generating terrain, skipping phys body gen." << endl;
+		return;
+	}
+	gen_phys_body();
 }
 
 void Terrain::water_sim(){
@@ -148,6 +168,33 @@ void Terrain::water_sim(){
 	}
 
 	terrain_mesh->update_vbo(upd_pos);
+}
+
+void Terrain::gen_phys_body(){
+	if(phys_world == NULL){
+		cout << "No phys world terrain set!" << endl;
+		return;
+	}
+
+
+	phys_idx_vert_arr = new btTriangleIndexVertexArray( 2*(w-1)*(h-1),
+		(int*)&terrain_mesh->indices[0],
+		3*sizeof(GLuint),
+		terrain_mesh->vertices.size(),
+		(btScalar*) &terrain_mesh->vertices[0],
+		sizeof(Vertex)); 
+
+	phys_tri_mesh = new btBvhTriangleMeshShape(phys_idx_vert_arr, true);
+	btDefaultMotionState* levelMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
+	
+	btRigidBody::btRigidBodyConstructionInfo
+		levelRigidBodyCI(0, levelMotionState, phys_tri_mesh, btVector3(0, 0, 0));
+	phys_body = new btRigidBody(levelRigidBodyCI);
+	phys_world->addRigidBody(phys_body);
+}
+
+void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
+	phys_world = new_phys_world;
 }
 
 void Terrain::render(){
