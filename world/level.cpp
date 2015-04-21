@@ -37,7 +37,7 @@ Level::Level(){
 	//Load objects
 	
     //Setup camera
-	camera = Camera(0,10.0f,-10.0f);
+	camera = Camera(50.0f,10.0f,50.0f);
 	camera.rotate(-2.7,0,0);
     GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
@@ -56,7 +56,7 @@ Level::Level(){
 
 	obj_list.push_back(new GameObj("../res/box.obj", shader));
 	//TODO work on swap locations
-	obj_list.front()->teleport(10,10,10);
+	obj_list.front()->teleport(70,10,70);
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
@@ -96,6 +96,9 @@ void Level::setup_bullet_world(){
     // The world.
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
     
+    // Set user pointer to point to the dispatcher for use when modifying collision shapes
+	dynamicsWorld->setWorldUserInfo(dispatcher);
+
 	//Default gravity is -10, but here the the game world has the y axis inverted to grav is +10
 	//grav_vec = btVector3(0, 10, 0);
 	//dynamicsWorld->setGravity(grav_vec);

@@ -145,9 +145,25 @@ void Terrain::water_sim(){
 
     float time = timer.delta_s();
 
+	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
+
 	for(uint32_t i = 0; i < upd_pos.size(); i++){
 		vec3* pos = &(terrain_mesh->vertices[upd_pos[i]].Position);
+
+        //Bullet before update
+
+		aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
+		aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
+
+		//Update vert pos
 		pos->y = (cos(time + pos->x/5.0f) - cos(time + pos->x/10.0f) - cos(time + pos->z/5.0f))/2.0f; 
+
+        //Bullet after update
+
+		aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
+		aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
+
 		//Update normals
 		if( (pos->x - 1 >= 0) && (pos->z - 1 >= 0) ){
 			btVector3 cur_pos = btVector3( pos->x , pos->y, pos->z );
@@ -168,6 +184,13 @@ void Terrain::water_sim(){
 	}
 
 	terrain_mesh->update_vbo(upd_pos);
+
+	//Update Bullet phys body
+	phys_tri_mesh->partialRefitTree(aabbMin,aabbMax);
+	
+	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+	phys_world->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(phys_body->getBroadphaseHandle(),
+																				(btCollisionDispatcher*)phys_world->getWorldUserInfo());
 }
 
 void Terrain::gen_phys_body(){

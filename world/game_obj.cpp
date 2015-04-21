@@ -33,9 +33,9 @@ GameObj::GameObj(string mdl_path, Shader shader){
 		//TODO add proper shape creation based on string
 		//TODO clean up shape objects when they are not needed anymore
 		if(body_type == "box"){
-			obj_coll_shape[body_type] = new btBoxShape(btVector3(0.5f,0.5f,0.5f));
+			obj_coll_shape[body_type] = new btBoxShape(btVector3(1.0f,1.0f,1.0f));
 		} else {
-			obj_coll_shape[body_type] = new btCapsuleShape(0.25f, 0.5f);
+			obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
 			//obj_coll_shape[body_type] = new btSphereShape(0.5f);
 		}
 	}
