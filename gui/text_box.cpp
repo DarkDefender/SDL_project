@@ -333,10 +333,18 @@ void Text_box::new_text(string str){
 			tex_id = NULL;
 		}
 
-		if (!bitmap_font){
-			create_TTF_surf(box_text);
+		if( !text_ani ){
+			if (!bitmap_font){
+				create_TTF_surf(box_text);
+			} else {
+				create_bitmap_surf(box_text); 
+			}
 		} else {
-			create_bitmap_surf(box_text); 
+			if (!bitmap_font){
+				create_TTF_surf("");
+			} else {
+				create_bitmap_surf(""); 
+			}
 		}
 	}
 }
