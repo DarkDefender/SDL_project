@@ -214,6 +214,9 @@ void Terrain::gen_phys_body(){
 		levelRigidBodyCI(0, levelMotionState, phys_tri_mesh, btVector3(0, 0, 0));
 	phys_body = new btRigidBody(levelRigidBodyCI);
 	phys_world->addRigidBody(phys_body);
+
+	//Add the terrain to the bullet for when we do collision detection (health etc)
+	phys_body->setUserPointer(this);
 }
 
 void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){

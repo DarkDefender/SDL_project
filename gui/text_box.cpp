@@ -352,30 +352,29 @@ void Text_box::render_text(){
 		if(!ani_timer.isStarted()){
 			ani_timer.start();
 		}
-        if(ani_timer.delta_s()*text_spd > 1.0f){
+		if(ani_timer.delta_s()*text_spd > 1.0f){
 			text_pos++;
 			ani_timer.start();
-		}
-		
-        if(text_pos > box_text.length()){
-			animation_done = true;
-			ani_timer.stop();
-		} else {
-			if (tex_id != NULL){
-				// Free the previous texture
-				glDeleteTextures(1,tex_id);
-				tex_id = NULL;
-			}
 
-            string str = box_text.substr(0, text_pos);
-
-			if (!bitmap_font){
-				create_TTF_surf(str);
+			if(text_pos > box_text.length()){
+				animation_done = true;
+				ani_timer.stop();
 			} else {
-				create_bitmap_surf(str); 
+				if (tex_id != NULL){
+					// Free the previous texture
+					glDeleteTextures(1,tex_id);
+					tex_id = NULL;
+				}
+
+				string str = box_text.substr(0, text_pos);
+
+				if (!bitmap_font){
+					create_TTF_surf(str);
+				} else {
+					create_bitmap_surf(str); 
+				}
 			}
 		}
-
 	}
 
 	glUseProgram(shader.program);
