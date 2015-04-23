@@ -111,16 +111,25 @@ void Level::setup_bullet_world(){
     //---- END BULLET INIT
 }
 
-void Level::cam_shoot(){
+void Level::cam_shoot(bool grav){
 	btVector3 pos;
 	camera.get_pos(pos);
 	btQuaternion quat = camera.get_quat();
-	obj_list.push_back(new GameObj("../res/box.obj", shader, "GameObj", pos, quat));
+	
+    string str = "GameObj";
+
+    if(!grav){
+		str = "happ";
+	}
+
+	obj_list.push_back(new GameObj("../res/box.obj", shader, str, pos, quat));
 
 	btRigidBody* body = obj_list.back()->get_body();
+	if(grav){
 	body->setGravity(btVector3(0,0,0));
+	}
 	camera.get_view_dir(pos);
-	body->setLinearVelocity(pos*10);
+	body->setLinearVelocity(pos*100);
 }
 
 void Level::update_phys(float delta_s){
@@ -135,40 +144,38 @@ void Level::handle_col(){
 	for (int i=0;i<numManifolds;i++)
 	{
 		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-		const btCollisionObject* obA = contactManifold->getBody0();
-		const btCollisionObject* obB = contactManifold->getBody1();
+		vector<const btCollisionObject*> ob_vec;
+		ob_vec.push_back( contactManifold->getBody0() );
+		ob_vec.push_back( contactManifold->getBody1() );
 
 		int numContacts = contactManifold->getNumContacts();
 		for (int j=0;j<numContacts;j++)
 		{
-
-            string str1, str2;
-
-			pair<string,void*>* phys_ptr = (pair<string,void*>*)obA->getUserPointer();  
-            str1 = phys_ptr->first;
-
-			if(phys_ptr->first == "GameObj"){
-				((GameObj*)phys_ptr->second)->set_dead(true);
-			}
-
-			phys_ptr = (pair<string,void*>*)obB->getUserPointer();  
-            str2 = phys_ptr->first;
-
-			if(phys_ptr->first == "GameObj"){
-				((GameObj*)phys_ptr->second)->set_dead(true);
-			}
-
-			cout << "COLLIDE " << test++ << ": " << str1 << " vs " << str2 << endl;
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
-			if (pt.getDistance()<0.f)
-			{
-				const btVector3& ptA = pt.getPositionWorldOnA();
-				const btVector3& ptB = pt.getPositionWorldOnB();
-				const btVector3& normalOnB = pt.m_normalWorldOnB;
+			vector<string> str;
+			vector<btVector3> pts;
+			pts.push_back(pt.getPositionWorldOnA());
+			pts.push_back(pt.getPositionWorldOnB());
+			const btVector3& normalOnB = pt.m_normalWorldOnB;
+
+			for(int o = 0; o < ob_vec.size(); o++){
+				pair<string,void*>* phys_ptr = (pair<string,void*>*)ob_vec[o]->getUserPointer();  
+
+				string obj_type = phys_ptr->first;
+
+				str.push_back(obj_type);
+
+				if(obj_type == "GameObj"){
+					((GameObj*)phys_ptr->second)->set_dead(true);
+				} else if (obj_type == "Terrain") {
+					((Terrain*)phys_ptr->second)->coll_at(pts[o]);
+				}
 			}
+
+			cout << "Obj coll " << test++ << ": " << str[0] << " vs " << str[1] << endl;
 		}
 
-		//contactManifold->clearManifold();	
+		contactManifold->clearManifold();	
 	}   
 }
 

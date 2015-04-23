@@ -35,7 +35,7 @@ class Level {
 	~Level();
 
     Camera camera;
-	void cam_shoot();
+	void cam_shoot(bool grav);
 
 	void update_phys(float delta_s);
 	void update();

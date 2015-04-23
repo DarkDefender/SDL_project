@@ -72,9 +72,10 @@ void game(SDL_Window *mainwindow){
 					switch (event.button.button)
 					{
 						case SDL_BUTTON_LEFT:
-							level.cam_shoot();
+							level.cam_shoot(true);
 						   	break;
 						case SDL_BUTTON_RIGHT:
+							level.cam_shoot(false);
 							break;
 						default:
 							//TODO perhaps use this for error messages?

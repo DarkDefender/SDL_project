@@ -26,13 +26,16 @@ class Terrain {
 	btRigidBody* phys_body = NULL;
 	btTriangleIndexVertexArray* phys_idx_vert_arr = NULL;
 
-	void water_sim();
-	void load_h_map(string path);
+    void phys_clean();
+
     void gen_phys_body();
-	
+	void load_h_map(string path);
+	void water_sim();
+
 	public:
 	Terrain(Shader terr_shade);
 	~Terrain();
+	void coll_at(btVector3 pos);
 	static void set_phys_world(btDiscreteDynamicsWorld* new_phys_world);
 	void render();
 };

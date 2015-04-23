@@ -24,9 +24,7 @@ Terrain::Terrain(Shader terr_shade) {
 	phys_ptr = make_pair("Terrain", this);
 }
 
-Terrain::~Terrain(){
-    delete terrain_mesh;
-
+void Terrain::phys_clean(){
 	if( phys_world != NULL && phys_body != NULL ){
 		phys_world->removeRigidBody(phys_body);
 		delete phys_body->getMotionState();
@@ -36,6 +34,12 @@ Terrain::~Terrain(){
 
 		delete phys_idx_vert_arr;
 	}
+}
+
+Terrain::~Terrain(){
+    delete terrain_mesh;
+
+	phys_clean();
 }
 
 void Terrain::load_h_map(string path){
@@ -133,6 +137,43 @@ void Terrain::load_h_map(string path){
 	gen_phys_body();
 }
 
+void Terrain::gen_phys_body(){
+	if(phys_world == NULL){
+		cout << "No phys world terrain set!" << endl;
+		return;
+	}
+
+
+	phys_idx_vert_arr = new btTriangleIndexVertexArray( 2*(w-1)*(h-1),
+		(int*)&terrain_mesh->indices[0],
+		3*sizeof(GLuint),
+		terrain_mesh->vertices.size(),
+		(btScalar*) &terrain_mesh->vertices[0],
+		sizeof(Vertex)); 
+
+	btVector3 bvhAabbMin,bvhAabbMax;
+	//TODO figure out why this has to be so large...
+	btVector3 additionalDeformationExtents(0,1000000,0);
+	phys_idx_vert_arr->calculateAabbBruteForce(bvhAabbMin,bvhAabbMax);
+
+	cout << "Min: x: " << bvhAabbMin.x() << " y: " << bvhAabbMin.y() << " z: " << bvhAabbMin.z() << endl;
+	cout << "Max: x: " << bvhAabbMax.x() << " y: " << bvhAabbMax.y() << " z: " << bvhAabbMax.z() << endl;
+
+	bvhAabbMin -= additionalDeformationExtents;
+	bvhAabbMax += additionalDeformationExtents;
+
+	phys_tri_mesh = new btBvhTriangleMeshShape(phys_idx_vert_arr, true, bvhAabbMin, bvhAabbMax);
+	btDefaultMotionState* levelMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
+	
+	btRigidBody::btRigidBodyConstructionInfo
+		levelRigidBodyCI(0, levelMotionState, phys_tri_mesh, btVector3(0, 0, 0));
+	phys_body = new btRigidBody(levelRigidBodyCI);
+	phys_world->addRigidBody(phys_body);
+
+	//Add the terrain to the bullet for when we do collision detection (health etc)
+	phys_body->setUserPointer(&phys_ptr);
+}
+
 void Terrain::water_sim(){
 	static vector<uint32_t> upd_pos;
     static Timer timer;
@@ -199,30 +240,186 @@ void Terrain::water_sim(){
 																				phys_world->getDispatcher());
 }
 
-void Terrain::gen_phys_body(){
-	if(phys_world == NULL){
-		cout << "No phys world terrain set!" << endl;
+void Terrain::coll_at(btVector3 terr_pos){
+
+	if(terr_pos.y() <= 0.f){
 		return;
 	}
 
+    vector<uint32_t> upd_pos;
 
-	phys_idx_vert_arr = new btTriangleIndexVertexArray( 2*(w-1)*(h-1),
-		(int*)&terrain_mesh->indices[0],
-		3*sizeof(GLuint),
-		terrain_mesh->vertices.size(),
-		(btScalar*) &terrain_mesh->vertices[0],
-		sizeof(Vertex)); 
+	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
-	phys_tri_mesh = new btBvhTriangleMeshShape(phys_idx_vert_arr, true);
-	btDefaultMotionState* levelMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(0, 0, 0)));
+	int terr_x, terr_z;
+	terr_x = (int)(terr_pos.x() + 0.5f); 
+	terr_z = (int)(terr_pos.z() + 0.5f);
+	upd_pos.push_back( terr_x + terr_z  * w );
+
+	vec3* pos = &(terrain_mesh->vertices[upd_pos[0]].Position);
+
+	aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
+	aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
+
+	if( pos->y < 0.2f ){
+		pos->y = 0;
+	} else {
+        pos->y -= 0.2f;
+	}
+
+	aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
+	aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
 	
-	btRigidBody::btRigidBodyConstructionInfo
-		levelRigidBodyCI(0, levelMotionState, phys_tri_mesh, btVector3(0, 0, 0));
-	phys_body = new btRigidBody(levelRigidBodyCI);
-	phys_world->addRigidBody(phys_body);
+    for(int i = 0; i < 8; i++){
+        int dir_x, dir_z, x, z;
+        x = terr_x;
+		z = terr_z;
+		bool done = false;
+		switch(i){
+			case 0:
+				dir_x = 1;
+				dir_z = 0;
+                break;
+			case 1:
+				dir_x = 1;
+				dir_z = 1;
+                break;
+			case 2:
+				dir_x = 0;
+				dir_z = 1;
+                break;
+			case 3:
+				dir_x = -1;
+				dir_z = 1;
+                break;
+			case 4:
+				dir_x = -1;
+				dir_z = 0;
+                break;
+			case 5:
+				dir_x = -1;
+				dir_z = -1;
+                break;
+			case 6:
+				dir_x = 0;
+				dir_z = -1;
+                break;
+			case 7:
+				dir_x = 1;
+				dir_z = -1;
+                break;
+		}
+        
+		int iter = 0;
+		while( !done ){
+			vec3* prev_pos = &(terrain_mesh->vertices[x + z * w].Position);
 
-	//Add the terrain to the bullet for when we do collision detection (health etc)
-	phys_body->setUserPointer(&phys_ptr);
+			x += dir_x;
+			z += dir_z;
+            
+			if( x < 0 ){
+				x = w - 1;
+			} else if ( x >= w ){
+				x = 0;
+			}
+
+			if( z < 0 ){
+				z = h - 1;
+			} else if ( z >= h ){
+				z = 0;
+			}
+			
+			vec3* cur_pos = &(terrain_mesh->vertices[x + z * w].Position);
+
+			int verts;
+            if( !(i % 2) ){
+				verts = 1 + iter*2;	
+			} else {
+				verts = 1;
+			}
+
+			for( int j = 0; j < verts; j++){
+                uint32_t idx = x + z * w;
+
+				if(verts > 1){
+					if(dir_z == 0){
+						int new_z = (z + j - (verts-1)/2);
+
+						if( new_z < 0 ){
+							new_z = h + new_z;
+						} else if ( new_z >= h ){
+							new_z = new_z - h;
+						}
+
+                        idx = x + new_z * w;
+
+						cur_pos = &(terrain_mesh->vertices[idx].Position);
+					} else {
+						int new_x = (x + j - (verts-1)/2);
+
+						if( new_x < 0 ){
+							new_x = w + new_x;
+						} else if ( new_x >= w ){
+							new_x = new_x - w;
+						}
+
+                        idx = new_x + z * w;
+
+						cur_pos = &(terrain_mesh->vertices[idx].Position);
+					}
+				}
+
+				float diff = cur_pos->y -0.2f * iter - prev_pos->y;
+
+				if(diff > 0.f){
+					aabbMax.setMax(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
+					aabbMin.setMin(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
+
+					cur_pos->y -= 0.2f*diff;
+
+					aabbMin.setMin(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
+					aabbMax.setMax(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
+					upd_pos.push_back(idx);
+				} else {
+					done = true;
+				}
+			}
+			iter++;
+		}
+
+	}
+
+	//Update all normals
+	for(uint32_t i = 0; i < upd_pos.size(); i++){
+		vec3* pos = &(terrain_mesh->vertices[upd_pos[i]].Position);
+
+		if( (pos->x - 1 >= 0) && (pos->z - 1 >= 0) ){
+			btVector3 cur_pos = btVector3( pos->x , pos->y, pos->z );
+			vec3 pos1, pos2;
+
+			pos1 = terrain_mesh->vertices[ (pos->x - 1 + pos->z * w) ].Position;
+			pos2 = terrain_mesh->vertices[ (pos->x + (pos->z -1) * w) ].Position;
+
+			btVector3 bt_p1 = btVector3(pos1.x, pos1.y, pos1.z);
+			btVector3 bt_p2 = btVector3(pos2.x, pos2.y, pos2.z);
+
+			bt_p1 = bt_p1 - cur_pos ;
+			bt_p2 = bt_p2 - cur_pos;
+			bt_p1 = bt_p2.cross(bt_p1);
+			bt_p1.normalize();
+			terrain_mesh->vertices[upd_pos[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
+		}
+	}
+
+	terrain_mesh->update_vbo(upd_pos);
+
+	//Update Bullet phys body
+	phys_tri_mesh->partialRefitTree(aabbMin,aabbMax);
+	
+	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
+	phys_world->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(phys_body->getBroadphaseHandle(),
+																				phys_world->getDispatcher());
+
 }
 
 void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
@@ -232,7 +429,7 @@ void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 void Terrain::render(){
 
 	if(water_timer.delta_s() > 0.05f){ 
-		water_sim();
+		//water_sim();
 		water_timer.start();
 	}
 
