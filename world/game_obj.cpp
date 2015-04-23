@@ -83,6 +83,7 @@ void GameObj::init(){
 }
 
 void GameObj::clean_up(){
+	cout << "Called destructor game obj" << endl;
 	phys_world->removeRigidBody(phys_body);
 	delete phys_body->getMotionState();
 	delete phys_body; 
@@ -225,6 +226,18 @@ void GameObj::teleport(btVector3 new_pos){
 
 void GameObj::teleport(GLfloat x, GLfloat y, GLfloat z){
 	teleport(btVector3(x,y,z));
+}
+
+btRigidBody* GameObj::get_body(){
+	return phys_body;
+}
+
+void GameObj::set_dead(bool dead){
+	this->dead = dead;
+}
+
+bool GameObj::get_dead(){
+	return dead;
 }
 
 void GameObj::render(){

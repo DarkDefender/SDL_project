@@ -25,6 +25,8 @@ Terrain::Terrain(Shader terr_shade) {
 }
 
 Terrain::~Terrain(){
+    delete terrain_mesh;
+
 	if( phys_world != NULL && phys_body != NULL ){
 		phys_world->removeRigidBody(phys_body);
 		delete phys_body->getMotionState();

@@ -34,6 +34,10 @@ class GameObj {
 	btRigidBody* phys_body;
 	btCollisionShape* body_shape;
 
+    /* Obj Data */
+
+	bool dead = false;
+
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
@@ -44,6 +48,9 @@ class GameObj {
 	/*  Functions   */
 	void teleport(btVector3 new_pos);
 	void teleport(GLfloat x, GLfloat y, GLfloat z);
+	btRigidBody* get_body();
+	void set_dead(bool dead);
+	bool get_dead();
 	void render();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 

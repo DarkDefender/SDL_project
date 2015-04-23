@@ -1,6 +1,7 @@
 #include <btBulletDynamicsCommon.h>
 #include "level.h"
 
+#include <iostream>
 #include <list>
 #include "game_obj.h"
 #include <GL/glew.h>
@@ -8,6 +9,8 @@
 #include "camera.h"
 #include "terrain.h"
 #include "timer.h"
+
+#include <utility> 
 
 GLfloat modelMatrix[] = {
 	1.0f, 0.0f, 0.0f, 0.0f,
@@ -68,7 +71,12 @@ Level::Level(){
 }
 
 Level::~Level(){
-	//TODO clean up the phys objects from all game and terrain objects
+    delete ter;
+	for (auto it = obj_list.begin(); it != obj_list.end(); it++){
+		delete (*it);
+		it = obj_list.erase(it);
+	}
+
 	del_bullet_world();
 }
 
@@ -107,19 +115,38 @@ void Level::update_phys(float delta_s){
 	dynamicsWorld->stepSimulation(delta_s);
 }
 
-/*
 void Level::handle_col(){
+	int test = 0;
+	
 	//Handle collisions
 	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
 	for (int i=0;i<numManifolds;i++)
 	{
-		btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
-		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		const btCollisionObject* obA = contactManifold->getBody0();
+		const btCollisionObject* obB = contactManifold->getBody1();
 
 		int numContacts = contactManifold->getNumContacts();
 		for (int j=0;j<numContacts;j++)
 		{
+
+            string str1, str2;
+
+			pair<string,void*>* phys_ptr = (pair<string,void*>*)obA->getUserPointer();  
+            str1 = phys_ptr->first;
+
+			if(phys_ptr->first == "GameObj"){
+				((GameObj*)phys_ptr->second)->set_dead(true);
+			}
+
+			phys_ptr = (pair<string,void*>*)obB->getUserPointer();  
+            str2 = phys_ptr->first;
+
+			if(phys_ptr->first == "GameObj"){
+				((GameObj*)phys_ptr->second)->set_dead(true);
+			}
+
+			cout << "COLLIDE " << test++ << ": " << str1 << " vs " << str2 << endl;
 			btManifoldPoint& pt = contactManifold->getContactPoint(j);
 			if (pt.getDistance()<0.f)
 			{
@@ -128,15 +155,26 @@ void Level::handle_col(){
 				const btVector3& normalOnB = pt.m_normalWorldOnB;
 			}
 		}
+
+		//contactManifold->clearManifold();	
 	}   
 }
-*/
 
 void Level::update(){
 	if(phys_timer.isStarted()){
 		update_phys( phys_timer.delta_s() );
+		handle_col();
 		phys_timer.start();
 	}
+
+    //Check if any game objects should be removed
+    for (auto it = obj_list.begin(); it != obj_list.end(); it++){
+		if ( (*it)->get_dead() ){
+			delete (*it);
+			it = obj_list.erase(it);
+		}
+	}
+
     //Update camera
 	camera.update();
 
