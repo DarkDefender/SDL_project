@@ -95,9 +95,6 @@ void Level::setup_bullet_world(){
 
     // The world.
     dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-    
-    // Set user pointer to point to the dispatcher for use when modifying collision shapes
-	dynamicsWorld->setWorldUserInfo(dispatcher);
 
 	//Default gravity is -10, but here the the game world has the y axis inverted to grav is +10
 	//grav_vec = btVector3(0, 10, 0);
@@ -109,6 +106,31 @@ void Level::setup_bullet_world(){
 void Level::update_phys(float delta_s){
 	dynamicsWorld->stepSimulation(delta_s);
 }
+
+/*
+void Level::handle_col(){
+	//Handle collisions
+	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
+	for (int i=0;i<numManifolds;i++)
+	{
+		btPersistentManifold* contactManifold =  dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
+		btCollisionObject* obA = static_cast<btCollisionObject*>(contactManifold->getBody0());
+		btCollisionObject* obB = static_cast<btCollisionObject*>(contactManifold->getBody1());
+
+		int numContacts = contactManifold->getNumContacts();
+		for (int j=0;j<numContacts;j++)
+		{
+			btManifoldPoint& pt = contactManifold->getContactPoint(j);
+			if (pt.getDistance()<0.f)
+			{
+				const btVector3& ptA = pt.getPositionWorldOnA();
+				const btVector3& ptB = pt.getPositionWorldOnB();
+				const btVector3& normalOnB = pt.m_normalWorldOnB;
+			}
+		}
+	}   
+}
+*/
 
 void Level::update(){
 	if(phys_timer.isStarted()){

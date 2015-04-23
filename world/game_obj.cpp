@@ -13,6 +13,8 @@
 #include "ogl_h_func.h"
 #include "game_obj.h"
 
+#include <utility> 
+
 using namespace std;
 
 
@@ -26,6 +28,8 @@ GameObj::GameObj(string mdl_path, Shader shader){
 
 	inited = false;
 	phys_body = NULL;
+
+	phys_ptr = make_pair("GameObj", this);
 
     string body_type = "boxy";
 
@@ -65,7 +69,7 @@ void GameObj::init(){
 	phys_body = new btRigidBody(RigidBodyCI);
 
 	//Add this GameObject to the bullet for when we do collision detection (health etc)
-	phys_body->setUserPointer(this);
+	phys_body->setUserPointer(&phys_ptr);
 
 	// TODO only for certain situations!
 	phys_body->setActivationState(DISABLE_DEACTIVATION);

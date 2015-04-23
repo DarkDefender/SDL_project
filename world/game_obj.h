@@ -12,6 +12,8 @@
 #include "mesh.h"
 #include "ogl_h_func.h"
 
+#include <utility> 
+
 using namespace std;
 
 class GameObj {
@@ -20,6 +22,8 @@ class GameObj {
 	string mesh_dir;
 	Shader shader;
     
+    pair<string,GameObj*> phys_ptr;
+
 	/* Bullet Data */
 	bool inited;
 

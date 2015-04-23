@@ -9,6 +9,8 @@
 
 #include <cmath>
 
+#include <utility> 
+
 using namespace std;
 
 btDiscreteDynamicsWorld* Terrain::phys_world = NULL;
@@ -18,6 +20,8 @@ Terrain::Terrain(Shader terr_shade) {
 	shader = terr_shade;
 	load_h_map("fft-terrain.tga");
 	water_timer.start();
+
+	phys_ptr = make_pair("Terrain", this);
 }
 
 Terrain::~Terrain(){
@@ -190,7 +194,7 @@ void Terrain::water_sim(){
 	
 	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
 	phys_world->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(phys_body->getBroadphaseHandle(),
-																				(btCollisionDispatcher*)phys_world->getWorldUserInfo());
+																				phys_world->getDispatcher());
 }
 
 void Terrain::gen_phys_body(){
@@ -216,7 +220,7 @@ void Terrain::gen_phys_body(){
 	phys_world->addRigidBody(phys_body);
 
 	//Add the terrain to the bullet for when we do collision detection (health etc)
-	phys_body->setUserPointer(this);
+	phys_body->setUserPointer(&phys_ptr);
 }
 
 void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){

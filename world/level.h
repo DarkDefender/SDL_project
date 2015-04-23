@@ -29,6 +29,7 @@ class Level {
 
 	void setup_bullet_world();
 	void del_bullet_world();
+	void handle_col();
 	public:
 	Level();
 	~Level();

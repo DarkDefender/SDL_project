@@ -8,12 +8,16 @@
 #include "mesh.h"
 #include "timer.h"
 
+#include <utility> 
+
 using namespace std;
 
 class Terrain {
 	Mesh *terrain_mesh;
 	Shader shader;
     Timer water_timer;
+
+    pair<string,Terrain*> phys_ptr;
 
 	uint32_t w, h;
 
