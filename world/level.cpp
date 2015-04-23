@@ -58,7 +58,7 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
 
 	obj_list.push_back(new GameObj("../res/box.obj", shader));
-	//TODO work on swap locations
+	//TODO work on spawn locations
 	obj_list.front()->teleport(70,10,70);
 
 	//Create terrain shader
@@ -109,6 +109,18 @@ void Level::setup_bullet_world(){
 	//dynamicsWorld->setGravity(grav_vec);
 
     //---- END BULLET INIT
+}
+
+void Level::cam_shoot(){
+	btVector3 pos;
+	camera.get_pos(pos);
+	btQuaternion quat = camera.get_quat();
+	obj_list.push_back(new GameObj("../res/box.obj", shader, "GameObj", pos, quat));
+
+	btRigidBody* body = obj_list.back()->get_body();
+	body->setGravity(btVector3(0,0,0));
+	camera.get_view_dir(pos);
+	body->setLinearVelocity(pos*10);
 }
 
 void Level::update_phys(float delta_s){

@@ -24,10 +24,41 @@ Camera::Camera(GLfloat x, GLfloat y, GLfloat z){
 void Camera::set_pos(btVector3 pos){
 	cur_pos = pos;
 }
-void Camera::set_pos(GLfloat dx, GLfloat dy, GLfloat dz){
-    btVector3 pos = btVector3(dx,dy,dz);
+void Camera::set_pos(GLfloat x, GLfloat y, GLfloat z){
+    btVector3 pos = btVector3(x,y,z);
 
 	set_pos(pos);
+}
+
+void Camera::get_pos(btVector3 &pos){
+	pos = cur_pos;
+}
+
+void Camera::get_pos(GLfloat &x, GLfloat &y, GLfloat &z){
+	x = cur_pos.x();
+	y = cur_pos.y();
+	z = cur_pos.z();
+}
+
+void Camera::get_view_dir(btVector3 &dir){
+	dir = view_dir;
+}
+
+btQuaternion Camera::get_quat(){
+	btVector3 y_vec(0,1,0);
+
+	btVector3 xaxis = y_vec.cross(view_dir);
+    xaxis.normalize();
+
+	btVector3 yaxis = view_dir.cross(xaxis);
+	yaxis.normalize();
+
+
+	btMatrix3x3 mat = btMatrix3x3( xaxis.x(), yaxis.x(), view_dir.x(),
+								   xaxis.y(), yaxis.y(), view_dir.y(),
+								   xaxis.z(), yaxis.z(), view_dir.z());
+	btTransform temp_trans = btTransform(mat);
+	return temp_trans.getRotation();
 }
 
 void Camera::move(btVector3 delta){

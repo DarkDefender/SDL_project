@@ -23,14 +23,17 @@ unordered_map<string,btCollisionShape*> GameObj::obj_coll_shape;
 unordered_map<string,vector<Mesh*>> GameObj::loaded_meshes;
 btDiscreteDynamicsWorld* GameObj::phys_world = NULL; 
 
-GameObj::GameObj(string mdl_path, Shader shader){
+GameObj::GameObj(string mdl_path, Shader shader, string type, btVector3 pos, btQuaternion quat){
 	this->shader = shader;
 	load_model(mdl_path);
 
 	inited = false;
 	phys_body = NULL;
 
-	phys_ptr = make_pair("GameObj", this);
+	phys_ptr = make_pair(type, this);
+    
+    spawn_pos = pos;
+	spawn_quat = quat;
 
     string body_type = "boxy";
 
@@ -58,10 +61,7 @@ void GameObj::init(){
 	} else {
 		inited = true;
 	}
-	btQuaternion quat;
-	quat.setEuler(0, 0, 0);
-	btDefaultMotionState* MotionState =
-		new btDefaultMotionState(btTransform(quat , btVector3(0, 0, 0)));
+	btDefaultMotionState* MotionState = new btDefaultMotionState(btTransform(spawn_quat , spawn_pos));
 	btScalar mass = 10;
 	btVector3 Inertia(0, 0, 0);
 	//TODO calc Inertia only works on certain shapes

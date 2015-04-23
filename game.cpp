@@ -43,12 +43,12 @@ int SDL_ToggleFS(SDL_Window *win)
 void game(SDL_Window *mainwindow){
     bool done = false;
 
-	Text_box *b1 = new Text_box(10,10,110,50,"../res/fonts/visitor1.ttf", 10);
-	Text_box *b2 = new Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
-    b1->new_text("Hipp, Happ, Hopp! ->");
-    b2->new_text("Press enter to exit meh tutorial...");
+	Text_box b1 = Text_box(10,10,110,50,"../res/fonts/visitor1.ttf", 10);
+	Text_box b2 = Text_box(10,40,100,50,"../res/fonts/Tewi-normal-11.psf");
+    b1.new_text("Hipp, Happ, Hopp! ->");
+    b2.new_text("Press enter to exit meh tutorial...");
 
-    b2->set_text_speed(100, true);
+    b2.set_text_speed(100, true);
 
 	Timer sin_timer, frame_timer;
 	sin_timer.start();
@@ -72,9 +72,8 @@ void game(SDL_Window *mainwindow){
 					switch (event.button.button)
 					{
 						case SDL_BUTTON_LEFT:
-							{
-								break;
-							}
+							level.cam_shoot();
+						   	break;
 						case SDL_BUTTON_RIGHT:
 							break;
 						default:
@@ -99,7 +98,7 @@ void game(SDL_Window *mainwindow){
 					{
 					   case SDLK_f:  SDL_ToggleFS(mainwindow); break;
 					   case SDLK_b:  
-									  b2->new_text("asdas dasd adasdas dasda sdasd asdasd asda sdasd asd adasd asda dasdas dasd asdasd asd a");
+									  b2.new_text("asdas dasd adasdas dasda sdasd asdasd asda sdasd asd adasd asda dasdas dasd asdasd asd a");
 									  break;
 					   case SDLK_a: level.camera.move_x = -1; break;
 					   case SDLK_d: level.camera.move_x = 1; break;
@@ -127,7 +126,7 @@ void game(SDL_Window *mainwindow){
 
 		printError("Pre draw");
 
-		b1->set_pos(40 - 10 * sin( sin_timer.delta_s() * 10.0f ), 10 );
+		b1.set_pos(40 - 10 * sin( sin_timer.delta_s() * 10.0f ), 10 );
 
 		/* Clear our buffer with a red background */
 		glClearColor ( 0.5, 0.5, 0.5, 1.0 );
@@ -138,8 +137,8 @@ void game(SDL_Window *mainwindow){
 		printError("Level");
         //Disable depth test for gui rendering
 		glDisable(GL_DEPTH_TEST);
-		b1->render_text();
-		b2->render_text();
+		b1.render_text();
+		b2.render_text();
 		//Enable depth test again
 		glEnable(GL_DEPTH_TEST);
 		printError("Text");
@@ -151,7 +150,7 @@ void game(SDL_Window *mainwindow){
 		level.update();
 		frames++;
 		if( frame_timer.delta_s() >= 1 ){
-			b1->new_text("FPS: " + to_string(frames));
+			b1.new_text("FPS: " + to_string(frames));
 			frames = 0;
 			frame_timer.start();
 		}

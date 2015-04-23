@@ -31,8 +31,15 @@ class Camera {
 		Camera(GLfloat x, GLfloat y, GLfloat z);
 
 		void set_pos(btVector3 pos);
-		void set_pos(GLfloat dx, GLfloat dy, GLfloat dz);
+		void set_pos(GLfloat x, GLfloat y, GLfloat z);
 		
+		void get_pos(btVector3 &pos);
+		void get_pos(GLfloat &x, GLfloat &y, GLfloat &z);
+
+		void get_view_dir(btVector3 &dir);
+		
+        btQuaternion get_quat();
+
 		void move(btVector3 delta);
 		void move(GLfloat dx, GLfloat dy, GLfloat dz);
 		
