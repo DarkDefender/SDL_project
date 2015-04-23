@@ -29,6 +29,7 @@ class GameObj {
 
 	static unordered_map<string,GLuint> texture_ids;
 	static unordered_map<string,btCollisionShape*> obj_coll_shape;
+	static unordered_map<string,vector<Mesh*>> loaded_meshes;
 	static btDiscreteDynamicsWorld* phys_world;
 
 	btRigidBody* phys_body;

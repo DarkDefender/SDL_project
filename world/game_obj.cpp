@@ -20,6 +20,7 @@ using namespace std;
 
 unordered_map<string,GLuint> GameObj::texture_ids;
 unordered_map<string,btCollisionShape*> GameObj::obj_coll_shape;
+unordered_map<string,vector<Mesh*>> GameObj::loaded_meshes;
 btDiscreteDynamicsWorld* GameObj::phys_world = NULL; 
 
 GameObj::GameObj(string mdl_path, Shader shader){
@@ -96,6 +97,13 @@ GameObj::~GameObj(){
 }
 
 void GameObj::load_model(string path){
+
+    if(loaded_meshes.count(path) > 0){
+		//We have already loaded this model
+        meshes = loaded_meshes[path];
+		return;
+	}
+
 	Assimp::Importer import;
 	const aiScene* scene = import.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);	
 
