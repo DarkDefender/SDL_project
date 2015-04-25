@@ -8,6 +8,8 @@
 #include <SDL2/SDL_image.h>
 #include <GL/glew.h>
 
+#include <cmath>
+
 #include "ogl_h_func.h"
 
 using namespace std;
@@ -228,4 +230,41 @@ GLuint *create_texture(const char *path){
 	tex_id = surf_to_texture(image);
 	SDL_FreeSurface(image);
 	return tex_id;
+}
+
+void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar) {
+  GLfloat xymax = znear * tan(fov * (M_PI / 360.0f));
+  GLfloat ymin = -xymax;
+  GLfloat xmin = -xymax;
+
+  GLfloat width = xymax - xmin;
+  GLfloat height = xymax - ymin;
+
+  GLfloat depth = zfar - znear;
+  GLfloat q = -(zfar + znear) / depth;
+  GLfloat qn = -2 * (zfar * znear) / depth;
+
+  GLfloat w = 2 * znear / width;
+  w = w / aspect;
+  GLfloat h = 2 * znear / height;
+
+  m[0]  = w;
+  m[1]  = 0;
+  m[2]  = 0;
+  m[3]  = 0;
+
+  m[4]  = 0;
+  m[5]  = h;
+  m[6]  = 0;
+  m[7]  = 0;
+
+  m[8]  = 0;
+  m[9]  = 0;
+  m[10] = q;
+  m[11] = -1;
+
+  m[12] = 0;
+  m[13] = 0;
+  m[14] = qn;
+  m[15] = 0;
 }

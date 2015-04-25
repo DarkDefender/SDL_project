@@ -244,13 +244,13 @@ void Terrain::water_sim(){
 uint32_t Terrain::calc_idx(int &x, int &z){
 	//TODO make sure we can't get back an invalid idx
 	if( x < 0 ){
-		x = w - x;
+		x = w + x;
 	} else if ( x >= w ){
 		x = x - w;
 	}
 
 	if( z < 0 ){
-		z = h - z;
+		z = h + z;
 	} else if ( z >= h ){
 		z = z - h;
 	}
@@ -385,7 +385,7 @@ void Terrain::coll_at(btVector3 terr_pos){
 
             done = true;
 
-			//Skip first element because it will always be false
+			//Skip first element because it is not set yet
             for( uint32_t k = 1; k < new_bool_vec.size(); k++){
 				if( new_bool_vec[k] != true ){
 					done = false;

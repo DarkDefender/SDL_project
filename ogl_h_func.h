@@ -23,4 +23,6 @@ GLuint *surf_to_texture(SDL_Surface *surf);
 
 GLuint *create_texture(const char *path);
 
+void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar);
+
 #endif

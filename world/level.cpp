@@ -18,18 +18,6 @@ GLfloat modelMatrix[] = {
 	0.0f, 0.0f, 1.0f, 0.0f,
 	0.0f, 0.0f, 0.0f, 1.0f };
 
-#define near 1.0
-#define far 3000.0
-//TODO adjust right,left according to screen res
-#define right 2.0/3.0
-#define left -2.0/3.0
-#define top 0.5
-#define bottom -0.5
-GLfloat projectionMatrix[] = {    2.0f*near/(right-left), 0.0f, (right+left)/(right-left), 0.0f,
-                                            0.0f, 2.0f*near/(top-bottom), (top+bottom)/(top-bottom), 0.0f,
-                                            0.0f, 0.0f, -(far + near)/(far - near), -2*far*near/(far - near),
-                                            0.0f, 0.0f, -1.0f, 0.0f };
-
 Level::Level(){
 	setup_bullet_world();
 
@@ -42,7 +30,11 @@ Level::Level(){
     //Setup camera
 	camera = Camera(50.0f,10.0f,50.0f);
 	camera.rotate(-2.7,0,0);
-    GLfloat viewMatrix[16];
+    GLfloat projectionMatrix[16];
+
+    gen_proj_mat(projectionMatrix, 90, 4.0f/3.0f, 0.5f, 3000.0f);
+
+	GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
 
     camera.add_waypoint(btVector3(10,0,10));
