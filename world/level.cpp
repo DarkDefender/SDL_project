@@ -158,7 +158,7 @@ void Level::handle_col(){
 			pts.push_back(pt.getPositionWorldOnB());
 			const btVector3& normalOnB = pt.m_normalWorldOnB;
 
-			for(int o = 0; o < ob_vec.size(); o++){
+			for(int32_t o = 0; o < ob_vec.size(); o++){
 				pair<string,void*>* phys_ptr = (pair<string,void*>*)ob_vec[o]->getUserPointer();  
 
 				string obj_type = phys_ptr->first;

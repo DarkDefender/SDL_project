@@ -80,6 +80,9 @@ void GameObj::init(){
 	//phys_body->setCcdMotionThreshold(1);
 	//phys_body->setCcdSweptSphereRadius(0.2f);
 	
+    //Don't simulate collisions with this object only use it to check if a collision has occured
+	phys_body->setCollisionFlags(phys_body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+
 	phys_world->addRigidBody(phys_body);
 }
 
