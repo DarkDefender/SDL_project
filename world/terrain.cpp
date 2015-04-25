@@ -8,6 +8,7 @@
 #include "timer.h"
 
 #include <cmath>
+#include <set>
 
 #include <utility> 
 
@@ -240,13 +241,30 @@ void Terrain::water_sim(){
 																				phys_world->getDispatcher());
 }
 
+uint32_t Terrain::calc_idx(int &x, int &z){
+	//TODO make sure we can't get back an invalid idx
+	if( x < 0 ){
+		x = w - x;
+	} else if ( x >= w ){
+		x = x - w;
+	}
+
+	if( z < 0 ){
+		z = h - z;
+	} else if ( z >= h ){
+		z = z - h;
+	}
+
+	return x + z * w;
+}
+
 void Terrain::coll_at(btVector3 terr_pos){
 
 	if(terr_pos.y() <= 0.f){
 		return;
 	}
 
-    vector<uint32_t> upd_pos;
+    set<uint32_t> upd_pos;
 
 	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
@@ -254,9 +272,10 @@ void Terrain::coll_at(btVector3 terr_pos){
 	int terr_x, terr_z;
 	terr_x = (int)(terr_pos.x() + 0.5f); 
 	terr_z = (int)(terr_pos.z() + 0.5f);
-	upd_pos.push_back( terr_x + terr_z  * w );
+	uint32_t start_idx = terr_x + terr_z  * w;
+	upd_pos.insert( start_idx );
 
-	vec3* pos = &(terrain_mesh->vertices[upd_pos[0]].Position);
+	vec3* pos = &(terrain_mesh->vertices[start_idx].Position);
 
 	aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
 	aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
@@ -270,7 +289,7 @@ void Terrain::coll_at(btVector3 terr_pos){
 	aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
 	aabbMax.setMax(btVector3(pos->x, pos->y, pos->z));
 	
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < 4; i++){
         int dir_x, dir_z, x, z;
         x = terr_x;
 		z = terr_z;
@@ -281,95 +300,65 @@ void Terrain::coll_at(btVector3 terr_pos){
 				dir_z = 0;
                 break;
 			case 1:
-				dir_x = 1;
+				dir_x = 0;
 				dir_z = 1;
                 break;
 			case 2:
-				dir_x = 0;
-				dir_z = 1;
-                break;
-			case 3:
-				dir_x = -1;
-				dir_z = 1;
-                break;
-			case 4:
 				dir_x = -1;
 				dir_z = 0;
                 break;
-			case 5:
-				dir_x = -1;
-				dir_z = -1;
-                break;
-			case 6:
+			case 3:
 				dir_x = 0;
-				dir_z = -1;
-                break;
-			case 7:
-				dir_x = 1;
 				dir_z = -1;
                 break;
 		}
         
-		int iter = 0;
-		while( !done ){
-			vec3* prev_pos = &(terrain_mesh->vertices[x + z * w].Position);
+		int iter = 1;
+		//Where should we continue to modify the terrain next interation
+		vector<bool> bool_vec;
+		vector<float> prev_y_vec(2,terrain_mesh->vertices[x + z * w].Position.y);
 
+		while( !done ){
 			x += dir_x;
 			z += dir_z;
             
-			if( x < 0 ){
-				x = w - 1;
-			} else if ( x >= w ){
-				x = 0;
-			}
+			uint32_t idx = calc_idx(x,z);
 
-			if( z < 0 ){
-				z = h - 1;
-			} else if ( z >= h ){
-				z = 0;
-			}
-			
-			vec3* cur_pos = &(terrain_mesh->vertices[x + z * w].Position);
+			vec3* cur_pos = &(terrain_mesh->vertices[idx].Position);
 
 			int verts;
-            if( !(i % 2) ){
-				verts = 1 + iter*2;	
-			} else {
-				verts = 1;
-			}
+			verts = iter * 2;	
+
+			vector<bool> new_bool_vec;
+			vector<float> y_vec;
+			new_bool_vec.resize(verts+1);
+			y_vec.resize(verts+1);
 
 			for( int j = 0; j < verts; j++){
-                uint32_t idx = x + z * w;
+                int new_x = x;
+				int new_z = z;
 
-				if(verts > 1){
-					if(dir_z == 0){
-						int new_z = (z + j - (verts-1)/2);
-
-						if( new_z < 0 ){
-							new_z = h + new_z;
-						} else if ( new_z >= h ){
-							new_z = new_z - h;
-						}
-
-                        idx = x + new_z * w;
-
-						cur_pos = &(terrain_mesh->vertices[idx].Position);
-					} else {
-						int new_x = (x + j - (verts-1)/2);
-
-						if( new_x < 0 ){
-							new_x = w + new_x;
-						} else if ( new_x >= w ){
-							new_x = new_x - w;
-						}
-
-                        idx = new_x + z * w;
-
-						cur_pos = &(terrain_mesh->vertices[idx].Position);
-					}
+                if( !bool_vec.empty() && bool_vec[j] ){
+					//Don't make any updates to this position
+					new_bool_vec[j+1] = true;
+					continue;
 				}
 
-				float diff = cur_pos->y -0.2f * iter - prev_pos->y;
+				if(dir_z == 0){
+					new_z = (z + j - (verts-1)/2);
+					
+					idx = calc_idx(x, new_z);
+
+					cur_pos = &(terrain_mesh->vertices[idx].Position);
+				} else {
+					new_x = (x + j - (verts-1)/2);
+
+					idx = calc_idx(new_x, z);
+
+					cur_pos = &(terrain_mesh->vertices[idx].Position);
+				}
+
+				float diff = (cur_pos->y - 1.0f) - prev_y_vec[j];
 
 				if(diff > 0.f){
 					aabbMax.setMax(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
@@ -379,19 +368,51 @@ void Terrain::coll_at(btVector3 terr_pos){
 
 					aabbMin.setMin(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
 					aabbMax.setMax(btVector3(cur_pos->x, cur_pos->y, cur_pos->z));
-					upd_pos.push_back(idx);
+					upd_pos.insert(idx);
+
+                    //Hack to make sure the quad normals updates correctly
+					int temp_x = new_x + 1;
+					int temp_z = new_z + 1;
+					upd_pos.insert( calc_idx(temp_x, new_z) );
+					upd_pos.insert( calc_idx(new_x, temp_z) );
+
+					new_bool_vec[j+1] = false;
 				} else {
-					done = true;
+					new_bool_vec[j+1] = true;
+				}
+				y_vec[j+1] = cur_pos->y;
+			}
+
+            done = true;
+
+			//Skip first element because it will always be false
+            for( uint32_t k = 1; k < new_bool_vec.size(); k++){
+				if( new_bool_vec[k] != true ){
+					done = false;
+					break;
 				}
 			}
+
+			//Last and first pos next iteraton
+			new_bool_vec.push_back( new_bool_vec.back() );
+			new_bool_vec[0] = new_bool_vec[1];
+
+            y_vec.push_back( y_vec.back() );
+            y_vec[0] = y_vec[1];
+
+            bool_vec = new_bool_vec;
+			prev_y_vec = y_vec;
+
 			iter++;
 		}
 
 	}
 
+	vector<uint32_t> upd_pos_vec(upd_pos.begin(), upd_pos.end());
+
 	//Update all normals
-	for(uint32_t i = 0; i < upd_pos.size(); i++){
-		vec3* pos = &(terrain_mesh->vertices[upd_pos[i]].Position);
+	for(uint32_t i = 0; i < upd_pos_vec.size(); i++){
+		vec3* pos = &(terrain_mesh->vertices[upd_pos_vec[i]].Position);
 
 		if( (pos->x - 1 >= 0) && (pos->z - 1 >= 0) ){
 			btVector3 cur_pos = btVector3( pos->x , pos->y, pos->z );
@@ -407,11 +428,13 @@ void Terrain::coll_at(btVector3 terr_pos){
 			bt_p2 = bt_p2 - cur_pos;
 			bt_p1 = bt_p2.cross(bt_p1);
 			bt_p1.normalize();
-			terrain_mesh->vertices[upd_pos[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
+			terrain_mesh->vertices[upd_pos_vec[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
 		}
 	}
 
-	terrain_mesh->update_vbo(upd_pos);
+	terrain_mesh->update_vbo(upd_pos_vec);
+
+    //TODO split the aabb update when terrain gets deformed at the corners of the world
 
 	//Update Bullet phys body
 	phys_tri_mesh->partialRefitTree(aabbMin,aabbMax);

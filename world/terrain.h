@@ -35,6 +35,7 @@ class Terrain {
 	public:
 	Terrain(Shader terr_shade);
 	~Terrain();
+	uint32_t calc_idx(int &x, int &z);
 	void coll_at(btVector3 pos);
 	static void set_phys_world(btDiscreteDynamicsWorld* new_phys_world);
 	void render();
