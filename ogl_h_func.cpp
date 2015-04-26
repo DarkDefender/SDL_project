@@ -232,39 +232,28 @@ GLuint *create_texture(const char *path){
 	return tex_id;
 }
 
-void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar) {
-  GLfloat xymax = znear * tan(fov * (M_PI / 360.0f));
-  GLfloat ymin = -xymax;
-  GLfloat xmin = -xymax;
+void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat near, GLfloat far) {
+	float angle = (fov / 180.0f) * M_PI;
+	float f = 1.0f / tan( angle * 0.5f );
 
-  GLfloat width = xymax - xmin;
-  GLfloat height = xymax - ymin;
+	m[0] = f / aspect;
+	m[5] = f;
+	m[10] = (far + near) / (near - far);
+	m[11] = -1.0f;
+	m[14] = (2.0f * far*near) / (near - far);
 
-  GLfloat depth = zfar - znear;
-  GLfloat q = -(zfar + znear) / depth;
-  GLfloat qn = -2 * (zfar * znear) / depth;
+	m[1]  = 0;
+	m[2]  = 0;
+	m[3]  = 0;
 
-  GLfloat w = 2 * znear / width;
-  w = w / aspect;
-  GLfloat h = 2 * znear / height;
+	m[4]  = 0;
+	m[6]  = 0;
+	m[7]  = 0;
 
-  m[0]  = w;
-  m[1]  = 0;
-  m[2]  = 0;
-  m[3]  = 0;
+	m[8]  = 0;
+	m[9]  = 0;
 
-  m[4]  = 0;
-  m[5]  = h;
-  m[6]  = 0;
-  m[7]  = 0;
-
-  m[8]  = 0;
-  m[9]  = 0;
-  m[10] = q;
-  m[11] = -1;
-
-  m[12] = 0;
-  m[13] = 0;
-  m[14] = qn;
-  m[15] = 0;
+	m[12] = 0;
+	m[13] = 0;
+	m[15] = 0;
 }
