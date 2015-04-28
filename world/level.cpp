@@ -32,7 +32,7 @@ Level::Level(){
 	camera.rotate(-2.7,0,0);
     GLfloat projectionMatrix[16];
 
-    gen_proj_mat(projectionMatrix, 90, 4.0f/3.0f, 0.5f, 3000.0f);
+    gen_proj_mat(projectionMatrix, 90, 4.0f/3.0f, 0.01f, 3000.0f);
 
 	GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
@@ -45,7 +45,7 @@ Level::Level(){
     //Create shader for mdl rendering
 	shader = compile_shader("../world/model.vert", "../world/model.frag"); 
 
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
 
@@ -55,7 +55,7 @@ Level::Level(){
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
-	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_TRUE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "viewMatrix"), 1, GL_TRUE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "modelMatrix"), 1, GL_TRUE, modelMatrix);
 
