@@ -452,7 +452,7 @@ void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 void Terrain::render(){
 
 	if(water_timer.delta_s() > 0.05f){ 
-		//water_sim();
+		water_sim();
 		water_timer.start();
 	}
 
