@@ -95,7 +95,7 @@ void Mesh::render(GLfloat *model_mat){
 
 	glUseProgram(shader.program);
 
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_TRUE, model_mat);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, model_mat);
 
     for(GLuint i = 0; i < textures.size(); i++)
     {

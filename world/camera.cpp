@@ -192,13 +192,5 @@ void Camera::update(){
 }
 
 void Camera::OGL_mat(GLfloat *m){
-	btScalar m_t[16];
-    trans.getOpenGLMatrix(m_t);
-
-	//Transpose matrix so we get a correct gl matirx...
-	for(int i = 0; i < 4; i++){
-		for(int j = 0; j < 4; j++){
-			m[j*4 + i] = m_t[i*4 + j];
-		}
-	}
+    trans.getOpenGLMatrix(m);
 }

@@ -264,16 +264,8 @@ void GameObj::render(){
     btScalar m[16];
     trans.getOpenGLMatrix(m);
 
-	//Transpose matrix so we get a correct gl matirx...
-	btScalar m_t[16];
-	for(int i = 0; i < 4; i++){
-		for(int j = 0; j < 4; j++){
-			m_t[j*4 + i] = m[i*4 + j];
-		}
-	}
-
 	for( uint32_t i=0; i < meshes.size(); i++ ) {
-		meshes[i]->render(m_t);	
+		meshes[i]->render(m);	
 	}
 }
 
