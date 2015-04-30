@@ -207,21 +207,28 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
         //Create the complete texture path
 		string tex_file(str.C_Str());
 
-		//TODO only load every texture once
-		// ^ Done, check if it works...
-		if( texture_ids.count(tex_file) > 0 ){
-			//already loaded this texture
-			texture.id = texture_ids[tex_file];
-		} else {
-			//Load the texture
-			texture.id = *create_texture( (mesh_dir + tex_file).c_str() );
-		}
+		//Load the texture
+		texture.id = load_texture(tex_file); 
 
         texture.type = typeName;
         textures.push_back(texture);
     }
     return textures;
 } 
+
+GLuint GameObj::load_texture(string path){
+	GLuint tex_id;
+	//TODO only load every texture once
+	// ^ Done, check if it works...
+	if( texture_ids.count(path) > 0 ){
+		//already loaded this texture
+		tex_id = texture_ids[path];
+	} else {
+		tex_id = *create_texture( path.c_str() );
+		texture_ids[path] = tex_id;
+	}
+	return tex_id;
+}
 
 void GameObj::teleport(btVector3 new_pos){
 	//Remove it from the world while teleporting

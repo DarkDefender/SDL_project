@@ -6,6 +6,7 @@
 
 #include <algorithm>
 
+#include "game_obj.h"
 #include "mesh.h"
 #include "ogl_h_func.h"
 
@@ -87,6 +88,13 @@ void Mesh::update_vbo(vector<uint32_t> update_pos){
 		glBufferSubData(GL_ARRAY_BUFFER, start_pos * sizeof(Vertex), update_range * sizeof(Vertex), &vertices[start_pos]);
 		update_range = 1;
 	}
+}
+
+void Mesh::add_texture(string path, string type){
+	Texture tex;
+	tex.id = GameObj::load_texture(path);
+	tex.type = type;
+	textures.push_back(tex);
 }
 
 void Mesh::render(GLfloat *model_mat){

@@ -52,6 +52,7 @@ class Mesh {
 	Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, Shader shader, GLenum vbo_mode = GL_STATIC_DRAW);
 	~Mesh();
 	void update_vbo(vector<uint32_t> update_pos);
+	void add_texture(string path, string type);
 	void render(GLfloat *model_mat);
 };
 

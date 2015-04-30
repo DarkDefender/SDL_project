@@ -100,9 +100,7 @@ void Terrain::load_h_map(string path){
 
 			vertices[ (x + z * img->w) ].Normal = cur_nor;
 			// TODO Texture coordinates. Scale them properly.
-			//texCoordArray[(x + z * img->w)*2 + 0] = x; // (float)x / tex->w;
-			//texCoordArray[(x + z * img->w)*2 + 1] = z; // (float)z / tex->h;
-			vertices[ (x + z * img->w) ].TexCoords = vec2(x,z);
+			vertices[ (x + z * img->w) ].TexCoords = vec2( (float)x/img->w , (float)z/img->h );
 		}
 	}
     

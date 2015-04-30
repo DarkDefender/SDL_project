@@ -58,6 +58,7 @@ class GameObj {
 	void render();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 
+	static GLuint load_texture(string path);
 	GameObj(string mdl_path, Shader shader, string type = "GameObj", btVector3 pos = btVector3(0,0,0), btQuaternion quat = btQuaternion(0,0,0));
 	~GameObj();
 };
