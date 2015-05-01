@@ -1,7 +1,6 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <sstream>
 #include <GL/glew.h>
 
 #include <algorithm>
@@ -97,9 +96,14 @@ void Mesh::add_texture(string path, string type){
 	textures.push_back(tex);
 }
 
+void Mesh::add_array_texture(string path, uint32_t w, uint32_t h){
+	Texture tex;
+	tex.id = GameObj::load_array_texture(path, w, h);
+	tex.type = "tex_array";
+	textures.push_back(tex);
+}
+
 void Mesh::render(GLfloat *model_mat){
-	GLuint diffuseNr = 1;
-    GLuint specularNr = 1;
 
 	glUseProgram(shader.program);
 
@@ -108,21 +112,16 @@ void Mesh::render(GLfloat *model_mat){
     for(GLuint i = 0; i < textures.size(); i++)
     {
         glActiveTexture(GL_TEXTURE0 + i); // Activate proper texture unit before binding
-        // Retrieve texture number (the N in diffuse_textureN)
-        stringstream ss;
-        string number;
-        string name = textures[i].type;
-        if(name == "texture_diffuse"){
-			// Transfer GLuint to stream
-            ss << diffuseNr++;
-		} else if(name == "texture_specular") {
-			// Transfer GLuint to stream
-            ss << specularNr++; 
-		}
-        number = ss.str(); 
 
-        glUniform1f(glGetUniformLocation(shader.program, ("material." + name + number).c_str()), i);
-        glBindTexture(GL_TEXTURE_2D, textures[i].id);
+        string name = textures[i].type;
+
+        glUniform1i(glGetUniformLocation(shader.program, name.c_str()), i);
+
+		if(name == "tex_array"){
+			glBindTexture(GL_TEXTURE_2D_ARRAY, textures[i].id);
+		} else {
+			glBindTexture(GL_TEXTURE_2D, textures[i].id);
+		}
     }
     glActiveTexture(GL_TEXTURE0);
 

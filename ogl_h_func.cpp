@@ -207,6 +207,8 @@ GLuint *surf_to_texture(SDL_Surface *surf){
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     GLuint *id_ptr = new GLuint;
 
@@ -228,6 +230,67 @@ GLuint *create_texture(const char *path){
 	}
 
 	tex_id = surf_to_texture(image);
+	SDL_FreeSurface(image);
+	return tex_id;
+}
+
+GLuint *surf_to_array_texture(SDL_Surface *surf, uint32_t w, uint32_t h){
+
+    GLuint tex_id = 0;
+	GLsizei width = w;
+	GLsizei height = h;
+	GLsizei layerCount = surf->w/w * surf->h/h;
+	GLsizei mipLevelCount = 1;
+
+	glGenTextures(1,&tex_id);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, tex_id);
+	//Allocate the storage.
+	glTexStorage3D(GL_TEXTURE_2D_ARRAY, mipLevelCount, GL_RGBA8, width, height, layerCount);
+	SDL_Surface *temp_tile = SDL_CreateRGBSurface(0, w, h, surf->format->BitsPerPixel, surf->format->Rmask, surf->format->Gmask,
+																					   surf->format->Bmask, surf->format->Amask);
+	for(uint32_t y = 0; y < surf->h/h; y++){
+		for(uint32_t x = 0; x < surf->w/w; x++){
+
+			SDL_Rect src = { x*w, y*h, w, h };
+            SDL_BlitSurface(surf, &src, temp_tile, NULL);
+
+			//Upload pixel data.
+			//The first 0 refers to the mipmap level (level 0, since there's only 1)
+			//The following 2 zeroes refers to the x and y offsets in case you only want to specify a subrectangle.
+			//The final 0 refers to the layer index offset (we start from index 0 and have 2 levels).
+			//Altogether you can specify a 3D box subset of the overall texture, but only one mip level at a time.
+			glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, x + y * surf->w/w, width, height, 1, GL_RGBA, GL_UNSIGNED_BYTE, temp_tile->pixels);
+		}
+	}
+	SDL_FreeSurface(temp_tile);
+
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    GLuint *id_ptr = new GLuint;
+
+    printError("HAPP");
+
+	*id_ptr = tex_id;
+
+	return id_ptr;
+}
+
+GLuint *create_array_texture(const char *path, uint32_t w, uint32_t h){
+	SDL_Surface *image;
+	GLuint *tex_id;
+
+	image = IMG_Load(path);
+
+	if ( !image )
+	{
+		printf ( "IMG_Load: %s\n", IMG_GetError () );
+		return NULL;
+	}
+
+	tex_id = surf_to_array_texture(image, w, h);
 	SDL_FreeSurface(image);
 	return tex_id;
 }

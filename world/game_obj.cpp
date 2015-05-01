@@ -230,6 +230,20 @@ GLuint GameObj::load_texture(string path){
 	return tex_id;
 }
 
+GLuint GameObj::load_array_texture(string path, uint32_t w, uint32_t h){
+	GLuint tex_id;
+	//TODO only load every texture once
+	// ^ Done, check if it works...
+	if( texture_ids.count(path) > 0 ){
+		//already loaded this texture
+		tex_id = texture_ids[path];
+	} else {
+		tex_id = *create_array_texture( path.c_str(), w, h );
+		texture_ids[path] = tex_id;
+	}
+	return tex_id;
+}
+
 void GameObj::teleport(btVector3 new_pos){
 	//Remove it from the world while teleporting
 	phys_world->removeRigidBody( phys_body );

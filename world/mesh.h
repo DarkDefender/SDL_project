@@ -53,6 +53,7 @@ class Mesh {
 	~Mesh();
 	void update_vbo(vector<uint32_t> update_pos);
 	void add_texture(string path, string type);
+	void add_array_texture(string path, uint32_t w, uint32_t h);
 	void render(GLfloat *model_mat);
 };
 

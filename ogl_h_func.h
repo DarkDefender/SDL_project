@@ -23,6 +23,10 @@ GLuint *surf_to_texture(SDL_Surface *surf);
 
 GLuint *create_texture(const char *path);
 
+GLuint *surf_to_array_texture(SDL_Surface *surf, uint32_t w, uint32_t h);
+
+GLuint *create_array_texture(const char *path, uint32_t w, uint32_t h);
+
 void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar);
 
 #endif

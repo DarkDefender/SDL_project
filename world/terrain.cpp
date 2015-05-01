@@ -100,7 +100,7 @@ void Terrain::load_h_map(string path){
 
 			vertices[ (x + z * img->w) ].Normal = cur_nor;
 			// TODO Texture coordinates. Scale them properly.
-			vertices[ (x + z * img->w) ].TexCoords = vec2( (float)x/img->w , (float)z/img->h );
+			vertices[ (x + z * img->w) ].TexCoords = vec2( (float)x/(img->w - 1) , (float)z/(img->h - 1) );
 		}
 	}
     
@@ -129,6 +129,9 @@ void Terrain::load_h_map(string path){
 
 	terrain_mesh = new Mesh(vertices, indices, tex_vec, shader, GL_DYNAMIC_DRAW);
 
+    terrain_mesh->add_texture("tile_ids.png", "tile_ids");
+    terrain_mesh->add_array_texture("tiles_16x16.png", 16, 16);
+
 	if(phys_world == NULL){
 		cout << "No phys world when generating terrain, skipping phys body gen." << endl;
 		return;
@@ -141,7 +144,6 @@ void Terrain::gen_phys_body(){
 		cout << "No phys world terrain set!" << endl;
 		return;
 	}
-
 
 	phys_idx_vert_arr = new btTriangleIndexVertexArray( 2*(w-1)*(h-1),
 		(int*)&terrain_mesh->indices[0],
