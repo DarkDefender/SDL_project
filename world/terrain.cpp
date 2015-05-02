@@ -100,7 +100,9 @@ void Terrain::load_h_map(string path){
 
 			vertices[ (x + z * img->w) ].Normal = cur_nor;
 			// TODO Texture coordinates. Scale them properly.
-			vertices[ (x + z * img->w) ].TexCoords = vec2( (float)x/(img->w - 1) , (float)z/(img->h - 1) );
+			// The terrain is w - 1, and h - 1. However, the tile_id texture is w,h so map out the uv coords as if
+			// the terrrain were w, h.
+			vertices[ (x + z * img->w) ].TexCoords = vec2( (float)x/(img->w) , (float)z/(img->h) );
 		}
 	}
     

@@ -16,8 +16,9 @@ void main(void)
     mat3 normalMatrix1 = mat3(viewMatrix * modelMatrix);
 	vec3 transformedNormal = normalMatrix1 * out_Normal;
 
-    const float w = 255.0;
-    const float h = 255.0;
+	//tile_ids w,h
+    const float w = 256.0;
+    const float h = 256.0;
 
     float temp = abs( (viewMatrix * modelMatrix * vec4(out_Pos,1)).z );
 
