@@ -11,10 +11,21 @@
 
 #include "mesh.h"
 #include "ogl_h_func.h"
+#include "camera.h"
 
 #include <utility> 
 
 using namespace std;
+
+//Billboard type
+enum Btype {
+	//NO billboarding
+	NONE,
+	//Face camera
+	FACE_CAM,
+	//Face camera, only rotate around the y (up) axis
+	Y_AXIS
+};
 
 class GameObj {
 	/*  Model Data  */
@@ -22,8 +33,6 @@ class GameObj {
 	string mesh_dir;
 	Shader shader;
     
-    pair<string,GameObj*> phys_ptr;
-
 	/* Bullet Data */
 	bool inited;
 
@@ -31,6 +40,7 @@ class GameObj {
 	static unordered_map<string,btCollisionShape*> obj_coll_shape;
 	static unordered_map<string,vector<Mesh*>> loaded_meshes;
 	static btDiscreteDynamicsWorld* phys_world;
+	static Camera* camera;
 
 	btRigidBody* phys_body;
 	btCollisionShape* body_shape;
@@ -39,8 +49,9 @@ class GameObj {
 	btQuaternion spawn_quat;
 
     /* Obj Data */
-
 	bool dead = false;
+    pair<string,GameObj*> phys_ptr;
+	Btype b_type;
 
 	/*  Functions   */
 	void load_model(string path);
@@ -58,9 +69,13 @@ class GameObj {
 	void render();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 
+	static void set_camera(Camera* cam);
 	static GLuint load_texture(string path);
 	static GLuint load_array_texture(string path, uint32_t w, uint32_t h);
-	GameObj(string mdl_path, Shader shader, string type = "GameObj", btVector3 pos = btVector3(0,0,0), btQuaternion quat = btQuaternion(0,0,0));
+	GameObj(string mdl_path, Shader shader, string type = "GameObj",
+											Btype b_type = NONE,
+											btVector3 pos = btVector3(0,0,0),
+											btQuaternion quat = btQuaternion(0,0,0));
 	~GameObj();
 };
 

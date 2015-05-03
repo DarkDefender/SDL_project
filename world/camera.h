@@ -3,14 +3,17 @@
 
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
-#include "game_obj.h"
+#include <vector>
+
 #include "timer.h"
+
+using namespace std;
 
 class Camera {
 	    btTransform trans;
 		btVector3 track_point = btVector3(0,0,0);
-		GameObj* track_obj = NULL;
-		GameObj* follow_obj = NULL;
+		btRigidBody* track_obj = NULL;
+		btRigidBody* follow_obj = NULL;
 
 		btVector3 follow_offset = btVector3(0,0,0);
 		//Have to keep track of cur pos because look_at modifies the location in trans
@@ -37,6 +40,7 @@ class Camera {
 		void get_pos(GLfloat &x, GLfloat &y, GLfloat &z);
 
 		void get_view_dir(btVector3 &dir);
+		void get_rot_mat(btMatrix3x3 &mat);
 		
         btQuaternion get_quat();
 
@@ -49,8 +53,8 @@ class Camera {
         void set_track_point(btVector3 pos);
         void set_track_point(GLfloat dx, GLfloat dy, GLfloat dz);
 
-        void set_track_obj(GameObj* obj);
-        void set_follow_obj(GameObj* obj);
+        void set_track_obj(btRigidBody* obj);
+        void set_follow_obj(btRigidBody* obj);
 
 		void set_follow_offset(btVector3 off);
 		void set_follow_offset(GLfloat x, GLfloat y, GLfloat z);

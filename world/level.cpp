@@ -30,6 +30,10 @@ Level::Level(){
     //Setup camera
 	camera = Camera(50.0f,10.0f,50.0f);
 	camera.rotate(-2.7,0,0);
+
+	//Set game obj cam ptr
+	GameObj::set_camera(&camera);
+
     GLfloat projectionMatrix[16];
 
     gen_proj_mat(projectionMatrix, 90, 4.0f/3.0f, 0.01f, 3000.0f);
@@ -49,9 +53,7 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
-	obj_list.push_back(new GameObj("../res/box.obj", shader));
-	//TODO work on spawn locations
-	obj_list.front()->teleport(70,10,70);
+	obj_list.push_back(new GameObj("../res/box.obj", shader, "GameObj" , Y_AXIS, btVector3(70,10,70) ) );
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
@@ -114,7 +116,7 @@ void Level::cam_shoot(bool grav){
 		str = "happ";
 	}
 
-	obj_list.push_back(new GameObj("../res/box.obj", shader, str, pos, quat));
+	obj_list.push_back(new GameObj("../res/box.obj", shader, str, NONE, pos, quat));
 
 	btRigidBody* body = obj_list.back()->get_body();
 	if(grav){
@@ -173,7 +175,7 @@ void Level::handle_col(){
 
 void Level::update(){
 	if(phys_timer.isStarted()){
-		update_phys( phys_timer.delta_s() );
+		//update_phys( phys_timer.delta_s() );
 		handle_col();
 		phys_timer.start();
 	}

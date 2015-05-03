@@ -11,6 +11,7 @@
 
 #include "mesh.h"
 #include "ogl_h_func.h"
+#include "camera.h"
 #include "game_obj.h"
 
 #include <utility> 
@@ -22,9 +23,11 @@ unordered_map<string,GLuint> GameObj::texture_ids;
 unordered_map<string,btCollisionShape*> GameObj::obj_coll_shape;
 unordered_map<string,vector<Mesh*>> GameObj::loaded_meshes;
 btDiscreteDynamicsWorld* GameObj::phys_world = NULL; 
+Camera* GameObj::camera = NULL;
 
-GameObj::GameObj(string mdl_path, Shader shader, string type, btVector3 pos, btQuaternion quat){
+GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVector3 pos, btQuaternion quat){
 	this->shader = shader;
+	this->b_type = b_type;
 	load_model(mdl_path);
 
 	inited = false;
@@ -282,6 +285,34 @@ void GameObj::render(){
 	//Get the transformation of the body into an OpenGL matrix
     btTransform trans;
     phys_body->getMotionState()->getWorldTransform(trans);
+
+    if(camera != NULL && b_type != NONE){
+
+		btVector3 x_axis, y_axis;
+		btVector3 cam_vec;
+		camera->get_pos(cam_vec);
+		cam_vec = (cam_vec - trans.getOrigin());
+
+		if(b_type == FACE_CAM){
+			x_axis = -cam_vec.cross(btVector3(0,1,0));
+			x_axis.normalize();
+			y_axis = cam_vec.cross(x_axis);
+			y_axis.normalize();
+		} else {
+			y_axis = trans.getBasis().getColumn(1);
+			x_axis = -cam_vec.cross(y_axis);
+			x_axis.normalize();
+		}
+
+		btVector3 z_axis = -y_axis.cross(x_axis);
+		z_axis.normalize();
+
+		btMatrix3x3 mat = btMatrix3x3( x_axis.x(), y_axis.x(), z_axis.x(),
+							           x_axis.y(), y_axis.y(), z_axis.y(),
+									   x_axis.z(), y_axis.z(), z_axis.z());
+		trans.setBasis( mat );
+	}
+
     btScalar m[16];
     trans.getOpenGLMatrix(m);
 
@@ -292,4 +323,8 @@ void GameObj::render(){
 
 void GameObj::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 	phys_world = new_phys_world;
+}
+
+void GameObj::set_camera(Camera* cam){
+    camera = cam;
 }

@@ -1,9 +1,10 @@
-#include "camera.h"
 #include <btBulletDynamicsCommon.h>
 #include <GL/glew.h>
-#include "timer.h"
+#include <vector>
 #include <iostream>
 
+#include "camera.h"
+#include "timer.h"
 using namespace std;
 
 Camera::Camera(){
@@ -44,7 +45,7 @@ void Camera::get_view_dir(btVector3 &dir){
 	dir = view_dir;
 }
 
-btQuaternion Camera::get_quat(){
+void Camera::get_rot_mat(btMatrix3x3 &mat){
 	btVector3 y_vec(0,1,0);
 
 	btVector3 xaxis = y_vec.cross(view_dir);
@@ -54,9 +55,14 @@ btQuaternion Camera::get_quat(){
 	yaxis.normalize();
 
 
-	btMatrix3x3 mat = btMatrix3x3( xaxis.x(), yaxis.x(), view_dir.x(),
-								   xaxis.y(), yaxis.y(), view_dir.y(),
-								   xaxis.z(), yaxis.z(), view_dir.z());
+	mat = btMatrix3x3( xaxis.x(), yaxis.x(), view_dir.x(),
+					   xaxis.y(), yaxis.y(), view_dir.y(),
+					   xaxis.z(), yaxis.z(), view_dir.z());
+}
+
+btQuaternion Camera::get_quat(){
+	btMatrix3x3 mat;
+	get_rot_mat(mat);
 	btTransform temp_trans = btTransform(mat);
 	return temp_trans.getRotation();
 }
@@ -99,10 +105,10 @@ void Camera::set_track_point(GLfloat x, GLfloat y, GLfloat z){
 	set_track_point( btVector3(x,y,z) );
 }
 
-void Camera::set_track_obj(GameObj* obj){
+void Camera::set_track_obj(btRigidBody* obj){
     track_obj = obj;
 }
-void Camera::set_follow_obj(GameObj* obj){
+void Camera::set_follow_obj(btRigidBody* obj){
     follow_obj = obj;
 }
 
