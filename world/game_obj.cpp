@@ -46,8 +46,8 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
 		if(body_type == "box"){
 			obj_coll_shape[body_type] = new btBoxShape(btVector3(1.0f,1.0f,1.0f));
 		} else {
-			obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
-			//obj_coll_shape[body_type] = new btSphereShape(0.5f);
+			//obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
+			obj_coll_shape[body_type] = new btSphereShape(0.5f);
 		}
 	}
 	body_shape = obj_coll_shape[body_type];
