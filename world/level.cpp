@@ -4,6 +4,7 @@
 #include <iostream>
 #include <list>
 #include "game_obj.h"
+#include "ship_obj.h"
 #include <GL/glew.h>
 #include "ogl_h_func.h"
 #include "camera.h"
@@ -53,7 +54,12 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
-	obj_list.push_back(new GameObj("../res/box.obj", shader, "GameObj" , Y_AXIS, btVector3(70,10,70) ) );
+    player = new ShipObj("../res/box.obj", shader, btVector3(70,10,70), camera.get_quat() );
+
+	obj_list.push_back( player );
+
+    camera.set_follow_obj( player->get_body() );
+	camera.set_follow_offset(0,0,-3);
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
@@ -164,7 +170,7 @@ void Level::handle_col(){
 			pts.push_back(pt.getPositionWorldOnB());
 			const btVector3& normalOnB = pt.m_normalWorldOnB;
 
-			for(int32_t o = 0; o < ob_vec.size(); o++){
+			for(uint32_t o = 0; o < ob_vec.size(); o++){
 				pair<string,void*>* phys_ptr = (pair<string,void*>*)ob_vec[o]->getUserPointer();  
 
 				string obj_type = phys_ptr->first;
@@ -187,13 +193,14 @@ void Level::handle_col(){
 
 void Level::update(){
 	if(phys_timer.isStarted()){
-		//update_phys( phys_timer.delta_s() );
+		update_phys( phys_timer.delta_s() );
 		handle_col();
 		phys_timer.start();
 	}
 
     //Check if any game objects should be removed
     for (auto it = obj_list.begin(); it != obj_list.end(); it++){
+		(*it)->update();
 		if ( (*it)->get_dead() ){
 			delete (*it);
 			it = obj_list.erase(it);
@@ -218,4 +225,84 @@ void Level::render(){
     for (auto it = obj_list.begin(); it != obj_list.end(); it++){
 		(*it)->render();
 	}
+}
+
+void Level::handle_key_down(Key key){
+	if(true){
+		switch(key){
+			case LEFT:
+				player->change_trav_dir( 0, 0, -1);
+				break;
+			case RIGHT:
+				player->change_trav_dir( 0, 0, 1);
+				break;
+			case UP:
+				player->change_trav_dir( 0, 1, 0);
+				break;
+			case DOWN:
+				player->change_trav_dir( 0, -1, 0);
+				break;
+			default:
+				break;
+		}
+	}
+
+	switch(key){
+		case LEFT:
+			camera.move_x = -1;
+			break;
+		case RIGHT:
+			camera.move_x = 1;
+			break;
+		case UP:
+			camera.move_y = 1;
+			break;
+		case DOWN:
+			camera.move_y = -1;
+			break;
+		default:
+			break;
+	}
+}
+
+void Level::handle_key_up(Key key){
+	if(true){
+		switch(key){
+			case LEFT:
+				player->change_trav_dir( 0, 0, 1);
+				break;
+			case RIGHT:
+				player->change_trav_dir( 0, 0, -1);
+				break;
+			case UP:
+				player->change_trav_dir( 0, -1, 0);
+				break;
+			case DOWN:
+				player->change_trav_dir( 0, 1, 0);
+				break;
+			default:
+				break;
+		}
+	}
+
+	switch(key){
+		case LEFT:
+			camera.move_x = 0;
+			break;
+		case RIGHT:
+			camera.move_x = 0;
+			break;
+		case UP:
+			camera.move_y = 0;
+			break;
+		case DOWN:
+			camera.move_y = 0;
+			break;
+		default:
+			break;
+	}
+}
+
+void Level::handle_mouse(float dx, float dy){
+	camera.rotate( dx, dy, 0);
 }

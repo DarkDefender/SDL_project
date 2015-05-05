@@ -89,7 +89,7 @@ void game(SDL_Window *mainwindow){
 					//int mouseX = event.motion.x;
 					//int mouseY = event.motion.y;
 
-					level.camera.rotate( -event.motion.xrel / 1000.0f, -event.motion.yrel / 1000.0f, 0);
+					level.handle_mouse( -event.motion.xrel / 1000.0f, -event.motion.yrel / 1000.0f);
 
 					break;
 				case SDL_KEYDOWN:
@@ -103,20 +103,19 @@ void game(SDL_Window *mainwindow){
 					   case SDLK_b:  
 									  b2.new_text("asdas dasd adasdas dasda sdasd asdasd asda sdasd asd adasd asda dasdas dasd asdasd asd a");
 									  break;
-					   case SDLK_a: level.camera.move_x = -1; break;
-					   case SDLK_d: level.camera.move_x = 1; break;
-					   case SDLK_w: level.camera.move_y = 1; break;
-					   case SDLK_s: level.camera.move_y = -1; break;
+					   case SDLK_a: level.handle_key_down(LEFT); break;
+					   case SDLK_d: level.handle_key_down(RIGHT); break;
+					   case SDLK_w: level.handle_key_down(UP); break;
+					   case SDLK_s: level.handle_key_down(DOWN); break;
 					}
 					break;
 				case SDL_KEYUP:
 					switch (event.key.keysym.sym)
 					{
-						case SDLK_a:  level.camera.move_x = 0; break;
-						case SDLK_d: level.camera.move_x = 0; break;
-						case SDLK_w: level.camera.move_y = 0; break;
-						case SDLK_s: level.camera.move_y = 0; break;
-						//case SDLK_SPACE: rota = !rota; break;
+					   case SDLK_a: level.handle_key_up(LEFT); break;
+					   case SDLK_d: level.handle_key_up(RIGHT); break;
+					   case SDLK_w: level.handle_key_up(UP); break;
+					   case SDLK_s: level.handle_key_up(DOWN); break;
 					}
 					break;
 				case SDL_QUIT:

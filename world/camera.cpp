@@ -110,6 +110,7 @@ void Camera::set_track_obj(btRigidBody* obj){
 }
 void Camera::set_follow_obj(btRigidBody* obj){
     follow_obj = obj;
+	update_timer.stop();
 }
 
 void Camera::set_follow_offset(btVector3 off){
@@ -158,6 +159,22 @@ void Camera::set_manual(bool man){
 }
 
 void Camera::update(){
+	
+    if(follow_obj != NULL){
+
+		btTransform temp_trans;
+
+		follow_obj->getMotionState()->getWorldTransform(temp_trans);
+
+		btMatrix3x3 temp_mat = temp_trans.getBasis(); 
+		btVector3 temp_vec = temp_mat * follow_offset;
+
+		set_pos( temp_vec + temp_trans.getOrigin() );
+		btVector3 view_temp = temp_mat.getColumn(2).normalized(); // z axis
+		look_at( view_temp + cur_pos );
+		return;
+	}
+
     // TODO update camera to follow and track points and objects
     if(!update_timer.isStarted()){
 		update_timer.start();
@@ -194,7 +211,7 @@ void Camera::update(){
 	}
 
 	update_timer.start();
-	look_at(0,0,0);
+	look_at(track_point);
 }
 
 void Camera::OGL_mat(GLfloat *m){

@@ -50,6 +50,7 @@ class GameObj {
 
     /* Obj Data */
 	bool dead = false;
+	int health = 100;
     pair<string,GameObj*> phys_ptr;
 	Btype b_type;
 
@@ -66,7 +67,10 @@ class GameObj {
 	btRigidBody* get_body();
 	void set_dead(bool dead);
 	bool get_dead();
+	virtual int get_hp();
+	virtual void set_hp(int delta_hp);
 	void render();
+	virtual void update();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 
 	static void set_camera(Camera* cam);
@@ -76,7 +80,7 @@ class GameObj {
 											Btype b_type = NONE,
 											btVector3 pos = btVector3(0,0,0),
 											btQuaternion quat = btQuaternion(0,0,0));
-	~GameObj();
+	virtual ~GameObj();
 };
 
 #endif

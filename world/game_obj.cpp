@@ -275,6 +275,14 @@ bool GameObj::get_dead(){
 	return dead;
 }
 
+int GameObj::get_hp(){
+	return health;
+}
+
+void GameObj::set_hp(int delta_hp){
+	health += delta_hp;
+}
+
 void GameObj::render(){
     if(!inited){
 	   cerr << "Tried to render un-inited object" << endl;
@@ -319,6 +327,10 @@ void GameObj::render(){
 	for( uint32_t i=0; i < meshes.size(); i++ ) {
 		meshes[i]->render(m);	
 	}
+}
+
+void GameObj::update(){
+	return;
 }
 
 void GameObj::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
