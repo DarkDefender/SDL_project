@@ -126,6 +126,18 @@ void Level::cam_shoot(bool grav){
 	body->setLinearVelocity(pos*100);
 }
 
+void Level::update_proj_mat(float aspect){
+
+    GLfloat projectionMatrix[16];
+
+    gen_proj_mat(projectionMatrix, 90, aspect, 0.01f, 3000.0f);
+
+    glUseProgram(shader.program);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+    glUseProgram(terrain_shader.program);
+	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+}
+
 void Level::update_phys(float delta_s){
 	dynamicsWorld->stepSimulation(delta_s);
 }

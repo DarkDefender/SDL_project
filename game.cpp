@@ -9,7 +9,7 @@
 
 #include "world/level.h"
 
-int SDL_ToggleFS(SDL_Window *win)
+int SDL_ToggleFS(SDL_Window *win, Level* level)
 {   
 	static int orig_w, orig_h;
 
@@ -34,6 +34,8 @@ int SDL_ToggleFS(SDL_Window *win)
 		h = orig_h;
 	}
 	glViewport(0,0,w,h);
+
+    level->update_proj_mat( (float)w/h );
 
 	cout << "window W: " << w << " H: " << h << endl; 
 
@@ -97,7 +99,7 @@ void game(SDL_Window *mainwindow){
 					}
 					switch (event.key.keysym.sym)
 					{
-					   case SDLK_f:  SDL_ToggleFS(mainwindow); break;
+					   case SDLK_f:  SDL_ToggleFS(mainwindow, &level); break;
 					   case SDLK_b:  
 									  b2.new_text("asdas dasd adasdas dasda sdasd asdasd asda sdasd asd adasd asda dasdas dasd asdasd asd a");
 									  break;

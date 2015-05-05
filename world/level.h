@@ -36,6 +36,7 @@ class Level {
 
     Camera camera;
 	void cam_shoot(bool grav);
+	void update_proj_mat(float aspect);
 
 	void update_phys(float delta_s);
 	void update();
