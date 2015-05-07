@@ -10,6 +10,7 @@ ShipObj::ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion qu
 		btTransform trans;
 		get_body()->getMotionState()->getWorldTransform(trans); 
 		travel_dir = trans.getBasis().getColumn(2).normalized(); // z axis
+		sim_timer.start();
 	};
 
 void ShipObj::update(){
@@ -19,9 +20,39 @@ void ShipObj::update(){
     btVector3 temp = trans.getBasis().getColumn(2).normalized(); // z axis
 
     if( turn_timer.delta_s() > 0.001f ){
-		get_body()->applyTorque(trans.getBasis() * roll_vec);
+		get_body()->applyTorque(trans.getBasis() * roll_vec * 200.0f * turn_timer.delta_s());
 		turn_timer.start();
 		cout << "Ang Damp: " << get_body()->getLinearDamping() << endl;
+	}
+
+
+    if( sim_timer.delta_s() > 0.001f ){
+
+		btVector3 x_vec = btVector3(0,1,0).cross( trans.getBasis().getColumn(2) ).normalized();
+		float x_vec_dot = x_vec.dot( trans.getBasis().getColumn(0).normalized() ); 
+		float x_vec_scale = abs(x_vec_dot);
+		float dir = x_vec.dot( trans.getBasis().getColumn(1).normalized() );
+
+		if( x_vec_scale < 0.95f ){
+
+			if ( dir > 0 ){
+				get_body()->applyTorque( btVector3( 0, (1 - x_vec_scale) * 100.0f * sim_timer.delta_s(), 0 ) );
+			} else {
+				get_body()->applyTorque( btVector3( 0, (-1 + x_vec_scale) * 100.0f * sim_timer.delta_s(), 0 ) );
+			}
+		}
+
+		//Do not try to auto adjust the ship while turning!
+		if( !turn_timer.isStarted() && x_vec_scale > 0.8f ){
+			if ( dir > 0 ){
+				get_body()->applyTorque( trans.getBasis() *  btVector3( 0, 0, (1 - x_vec_scale) * 200.0f * sim_timer.delta_s() ) );
+			} else {
+				get_body()->applyTorque( trans.getBasis() *  btVector3( 0, 0, (-1 + x_vec_scale) * 200.0f * sim_timer.delta_s() ) );
+			}
+		}
+
+		sim_timer.start();
+
 	}
 
 	if(temp != travel_dir){

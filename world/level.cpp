@@ -59,7 +59,7 @@ Level::Level(){
 	obj_list.push_back( player );
 
     camera.set_follow_obj( player->get_body() );
-	camera.set_follow_offset(0,0,-1.5f);
+	camera.set_follow_offset(0,0.3f,-1.5f);
 
 	//Create terrain shader
     terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
@@ -242,6 +242,9 @@ void Level::handle_key_down(Key key){
 			case DOWN:
 				player->change_trav_dir( -1, 0, 0);
 				break;
+			case SPACE:
+				player->change_speed( 5 );
+				break;
 			default:
 				break;
 		}
@@ -281,6 +284,9 @@ void Level::handle_key_up(Key key){
 				player->change_trav_dir( 1, 0, 0);
 				break;
 			default:
+				break;
+			case SPACE:
+				player->change_speed( 0 );
 				break;
 		}
 	}

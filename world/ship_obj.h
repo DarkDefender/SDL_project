@@ -8,12 +8,12 @@ using namespace std;
 
 class ShipObj : public GameObj{
 
-    Timer turn_timer, speed_timer;
+    Timer turn_timer, speed_timer, sim_timer;
 
 	btVector3 travel_dir;
 	btVector3 roll_vec = btVector3(0,0,0);
 	float turn_speed = 0.3;
-	float min_speed = 0.5;
+	float min_speed = 0;
 	float max_speed = 10;
 	float cur_speed = min_speed;
 

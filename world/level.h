@@ -18,7 +18,8 @@ enum Key {
 	   LEFT = 1 << 2,
 	   RIGHT = 1 << 3,
 	   ATTACK1 = 1 << 4,
-	   ATTACK2 = 1 << 5
+	   ATTACK2 = 1 << 5,
+	   SPACE = 1 << 6
 };
 
 class Level {

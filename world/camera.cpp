@@ -167,7 +167,8 @@ void Camera::update(){
 		follow_obj->getMotionState()->getWorldTransform(temp_trans);
 
 		btMatrix3x3 temp_mat = temp_trans.getBasis(); 
-		btVector3 temp_vec = temp_mat * follow_offset;
+		btVector3 temp_vec = temp_mat * btVector3(0,0,follow_offset[2]);
+		temp_vec[1] += follow_offset[1];
 
 		set_pos( temp_vec + temp_trans.getOrigin() );
 		btVector3 view_temp = temp_mat.getColumn(2).normalized(); // z axis
