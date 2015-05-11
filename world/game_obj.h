@@ -5,6 +5,7 @@
 #include <assimp/postprocess.h>
 #include <string>
 #include <unordered_map>
+#include <list>
 #include <GL/glew.h>
 
 #include <btBulletDynamicsCommon.h>
@@ -54,6 +55,8 @@ class GameObj {
     pair<string,GameObj*> phys_ptr;
 	Btype b_type;
 
+	list<GameObj*> new_objs;
+
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
@@ -71,6 +74,9 @@ class GameObj {
 	virtual void set_hp(int delta_hp);
 	void render();
 	virtual void update();
+	void spawn_new_obj(string type);
+	void spawn_new_obj(GameObj* obj);
+	list<GameObj*> get_new_objs();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 
 	static void set_camera(Camera* cam);

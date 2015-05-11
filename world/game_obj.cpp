@@ -5,6 +5,7 @@
 #include <string>
 #include <cstring>
 #include <unordered_map>
+#include <list>
 #include <GL/glew.h>
 
 #include <btBulletDynamicsCommon.h>
@@ -99,6 +100,11 @@ void GameObj::clean_up(){
 GameObj::~GameObj(){
 	if( inited ){
 		clean_up();
+	}
+
+	//Clean up new object spawn list if we for some reason didn't manage to empty if before
+    for (auto it = new_objs.begin(); it != new_objs.end(); it++){
+		delete (*it);
 	}
 }
 
@@ -332,6 +338,22 @@ void GameObj::render(){
 void GameObj::update(){
 	return;
 }
+
+void GameObj::spawn_new_obj(string type) {
+	
+}
+
+void GameObj::spawn_new_obj(GameObj* obj) {
+    new_objs.push_back(obj);
+}
+
+list<GameObj*> GameObj::get_new_objs() {
+    list<GameObj*> temp_list = new_objs;
+	new_objs.clear();
+
+	return temp_list;
+}
+
 
 void GameObj::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 	phys_world = new_phys_world;

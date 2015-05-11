@@ -198,14 +198,19 @@ void Level::update(){
 		phys_timer.start();
 	}
 
+    list<GameObj*> new_objs;
+
     //Check if any game objects should be removed
     for (auto it = obj_list.begin(); it != obj_list.end(); it++){
 		(*it)->update();
+		new_objs.merge( (*it)->get_new_objs() );
 		if ( (*it)->get_dead() ){
 			delete (*it);
 			it = obj_list.erase(it);
 		}
 	}
+
+    obj_list.merge( new_objs );
 
     //Update camera
 	camera.update();
