@@ -26,7 +26,8 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image)
 pkg_search_module(BULLET REQUIRED bullet)
 pkg_search_module(ASSIMP REQUIRED assimp)
 
-include_directories(${CMAKE_SOURCE_DIR} 
+include_directories(${CMAKE_SOURCE_DIR})
+include_directories(SYSTEM
 	${OPENGL_INCLUDE_DIR} ${GLEW_INCLUDE_DIR} 
 	${SDL2_INCLUDE_DIR}	${SDL2TTF_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS}
 	${BULLET_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS})
