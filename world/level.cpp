@@ -54,7 +54,7 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
-    player = new ShipObj("../res/box.obj", shader, btVector3(70,10,70), camera.get_quat() );
+    player = new ShipObj("../res/plane1_v3.obj", shader, btVector3(70,10,70), camera.get_quat() );
 
 	obj_list.push_back( player );
 

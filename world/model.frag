@@ -8,7 +8,7 @@ in vec2 tex_Co;
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
 
-uniform sampler2D texture_diffuse1;
+uniform sampler2D texture_diffuse;
 
 void main(void)
 {
@@ -19,6 +19,6 @@ void main(void)
 
 	float res_light = dot(normalize(light), normalize(transformedNormal));
 
-	//out_Color = texture(texture_diffuse1, tex_Co);
-	out_Color = vec4(vec3(1) * res_light, 1);
+	vec4 tex = texture(texture_diffuse, tex_Co);
+	out_Color = vec4(tex.xyz * res_light,  tex.w);
 }

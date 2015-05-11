@@ -217,7 +217,7 @@ vector<Texture> GameObj::load_mat_tex(aiMaterial* mat, aiTextureType type, strin
 		string tex_file(str.C_Str());
 
 		//Load the texture
-		texture.id = load_texture(tex_file); 
+		texture.id = load_texture(mesh_dir + "/" + tex_file); 
 
         texture.type = typeName;
         textures.push_back(texture);
