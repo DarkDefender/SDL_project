@@ -247,12 +247,16 @@ void Level::handle_key_down(Key key){
 			case DOWN:
 				player->change_trav_dir( -1, 0, 0);
 				break;
+			case ATTACK1:
+				player->shoot(true);
+				break;
 			case SPACE:
 				player->change_speed( 5 );
 				break;
 			default:
 				break;
 		}
+		return;
 	}
 
 	switch(key){
@@ -267,6 +271,9 @@ void Level::handle_key_down(Key key){
 			break;
 		case DOWN:
 			camera.move_y = -1;
+			break;
+		case ATTACK1:
+			cam_shoot(true);
 			break;
 		default:
 			break;
@@ -288,12 +295,16 @@ void Level::handle_key_up(Key key){
 			case DOWN:
 				player->change_trav_dir( 1, 0, 0);
 				break;
-			default:
+			case ATTACK1:
+				player->shoot(false);
 				break;
 			case SPACE:
 				player->change_speed( 0 );
 				break;
+			default:
+				break;
 		}
+		return;
 	}
 
 	switch(key){
@@ -308,6 +319,9 @@ void Level::handle_key_up(Key key){
 			break;
 		case DOWN:
 			camera.move_y = 0;
+			break;
+		case ATTACK1:
+			cam_shoot(false);
 			break;
 		default:
 			break;

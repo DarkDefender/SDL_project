@@ -74,10 +74,25 @@ void game(SDL_Window *mainwindow){
 					switch (event.button.button)
 					{
 						case SDL_BUTTON_LEFT:
-							level.cam_shoot(true);
+							level.handle_key_down(ATTACK1);
 						   	break;
 						case SDL_BUTTON_RIGHT:
-							level.cam_shoot(false);
+							level.handle_key_down(ATTACK2);
+							break;
+						default:
+							//TODO perhaps use this for error messages?
+							//SDL_ShowSimpleMessageBox(0, "Mouse", "Some other button was pressed!", window);
+							break;
+					}
+					break;
+				case SDL_MOUSEBUTTONUP:
+					switch (event.button.button)
+					{
+						case SDL_BUTTON_LEFT:
+							level.handle_key_up(ATTACK1);
+						   	break;
+						case SDL_BUTTON_RIGHT:
+							level.handle_key_up(ATTACK2);
 							break;
 						default:
 							//TODO perhaps use this for error messages?

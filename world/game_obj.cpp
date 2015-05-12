@@ -39,19 +39,17 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
     spawn_pos = pos;
 	spawn_quat = quat;
 
-    string body_type = "boxy";
-
-	if(obj_coll_shape.count(body_type) == 0){
+	if(obj_coll_shape.count(type) == 0){
 		//TODO add proper shape creation based on string
 		//TODO clean up shape objects when they are not needed anymore
-		if(body_type == "box"){
-			obj_coll_shape[body_type] = new btBoxShape(btVector3(1.0f,1.0f,1.0f));
+		if(type == "GameObj"){
+			obj_coll_shape[type] = new btBoxShape(btVector3(0.05f,1.0f,0.05f));
 		} else {
 			//obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
-			obj_coll_shape[body_type] = new btSphereShape(0.5f);
+			obj_coll_shape[type] = new btSphereShape(0.25f);
 		}
 	}
-	body_shape = obj_coll_shape[body_type];
+	body_shape = obj_coll_shape[type];
 
 	if(phys_world != NULL){
       //We have set all everything required to init!
@@ -339,8 +337,31 @@ void GameObj::update(){
 	return;
 }
 
-void GameObj::spawn_new_obj(string type) {
-	
+void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir) {
+	if(type == "las_shoot"){
+		//TODO check if z-axis is the trav_dir
+		btVector3 z_vec(0,0,1);
+
+		btVector3 xaxis = z_vec.cross(trav_dir);
+		xaxis.normalize();
+
+		btVector3 zaxis = trav_dir.cross(-xaxis);
+		zaxis.normalize();
+
+		btMatrix3x3 mat = btMatrix3x3( xaxis.x(), trav_dir.x(), zaxis.x(),
+									   xaxis.y(), trav_dir.y(), zaxis.y(),
+									   xaxis.z(), trav_dir.z(), zaxis.z());
+
+        btTransform temp_trans(mat);
+
+		new_objs.push_back(new GameObj("../res/laser_shot1.obj", shader, "GameObj", Y_AXIS, pos, temp_trans.getRotation() ));
+
+		btRigidBody* body = new_objs.back()->get_body();
+		body->setGravity(btVector3(0,0,0));
+
+		body->setLinearVelocity(trav_dir*75);   
+		cout << "Happ\n" << endl;
+	}
 }
 
 void GameObj::spawn_new_obj(GameObj* obj) {

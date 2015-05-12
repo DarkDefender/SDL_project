@@ -74,7 +74,7 @@ class GameObj {
 	virtual void set_hp(int delta_hp);
 	void render();
 	virtual void update();
-	void spawn_new_obj(string type);
+	void spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir);
 	void spawn_new_obj(GameObj* obj);
 	list<GameObj*> get_new_objs();
 	void init();
