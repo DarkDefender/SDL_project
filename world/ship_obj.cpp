@@ -19,13 +19,15 @@ void ShipObj::update(){
 	get_body()->getMotionState()->getWorldTransform(trans); 
     btVector3 temp = trans.getBasis().getColumn(2).normalized(); // z axis
 
-    if( turn_timer.delta_s() > 0.001f ){
-		get_body()->applyTorque(trans.getBasis() * roll_vec * 200.0f * turn_timer.delta_s());
-		turn_timer.start();
+    if( turn_timer.isStarted() ){
+
+        btVector3 cur_roll = old_roll.lerp(roll_vec, turn_timer.delta_s() );
+
+		get_body()->setAngularVelocity( trans.getBasis() * cur_roll );
 	}
 
 
-    if( sim_timer.delta_s() > 0.001f ){
+    if( sim_timer.delta_s() > 0.001f && false ){
 
 		btVector3 x_vec = btVector3(0,1,0).cross( trans.getBasis().getColumn(2) ).normalized();
 		float x_vec_dot = x_vec.dot( trans.getBasis().getColumn(0).normalized() ); 
@@ -54,16 +56,18 @@ void ShipObj::update(){
 
 	}
 
-	if(temp != travel_dir){
-		update_speed = true;
-		travel_dir = temp;
+    if(cur_speed != target_speed && speed_timer.delta_s() > 0.01f){
+		if(cur_speed > target_speed) {
+			cur_speed -= 0.01f;
+		} else {
+			cur_speed += 0.01f;
+		}
+
+		speed_timer.start();
 	}
 
-	if(update_speed){
-		//TODO perhaps always update speed. Might be faster then to do checks
-		update_speed = false;
-		get_body()->setLinearVelocity(travel_dir*cur_speed);
-	}
+	travel_dir = temp;
+	get_body()->setLinearVelocity(travel_dir*cur_speed);
 
 	if(shooting && shoot_timer.delta_s() > 0.1f){
         shoot_timer.start();
@@ -85,25 +89,25 @@ void ShipObj::shoot(bool shoot){
 
 void ShipObj::change_trav_dir(float dx, float dy, float dz){
 
-	roll_vec += btVector3(dx, dy, dz);
+	old_roll = roll_vec;
+	roll_vec += btVector3(dx, dy, dz * 2);
 	if( roll_vec.fuzzyZero() ){
+		old_timer = turn_timer.delta_s();
 		turn_timer.stop();
 		return;
 	}
 
-    if( !turn_timer.isStarted() ){
-		turn_timer.start();
-	}
+	turn_timer.start();
 }
 
-void ShipObj::change_speed(float target_speed){
+void ShipObj::change_speed(float new_target_speed){
 
-	if(target_speed > max_speed){
-		cur_speed = max_speed;
-	} else if ( target_speed < min_speed ){
-		cur_speed = min_speed;
+	if(new_target_speed > max_speed){
+		target_speed = max_speed;
+	} else if ( new_target_speed < min_speed ){
+		target_speed = min_speed;
 	} else {
-		cur_speed = target_speed;
+		target_speed = new_target_speed;
 	}
-	update_speed = true;
+	speed_timer.start();
 }

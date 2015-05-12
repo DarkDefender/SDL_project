@@ -12,12 +12,14 @@ class ShipObj : public GameObj{
 
 	btVector3 travel_dir;
 	btVector3 roll_vec = btVector3(0,0,0);
-	float turn_speed = 0.3;
+	btVector3 old_roll = btVector3(0,0,0);
+	float old_timer = 0;
+	float turn_speed = 0.1;
 	float min_speed = 0;
 	float max_speed = 10;
 	float cur_speed = min_speed;
+	float target_speed = min_speed;
 
-    bool update_speed = true;
 	bool shooting = false;
 
 	public:
