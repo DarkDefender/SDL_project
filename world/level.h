@@ -42,7 +42,7 @@ class Level {
 
 	void setup_bullet_world();
 	void del_bullet_world();
-	void handle_col();
+	static bool handle_col(btManifoldPoint& point, btCollisionObject* body0, btCollisionObject* body1);
 	public:
 	Level();
 	~Level();

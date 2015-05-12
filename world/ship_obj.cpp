@@ -68,7 +68,7 @@ void ShipObj::update(){
 	if(shooting && shoot_timer.delta_s() > 0.1f){
         shoot_timer.start();
 		
-		//spawn_new_obj("las_shoot", trans.getOrigin() + travel_dir + 0.4 * trans.getBasis().getColumn(0).normalized(), travel_dir);
+		spawn_new_obj("las_shoot", trans.getOrigin() + travel_dir + 0.4 * trans.getBasis().getColumn(0).normalized(), travel_dir);
 		spawn_new_obj("las_shoot", trans.getOrigin() + travel_dir + -0.4 * trans.getBasis().getColumn(0).normalized(), travel_dir);
 	}
 }

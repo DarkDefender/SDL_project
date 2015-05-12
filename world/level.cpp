@@ -13,6 +13,8 @@
 
 #include <utility> 
 
+extern ContactProcessedCallback gContactProcessedCallback;
+
 GLfloat modelMatrix[] = {
 	1.0f, 0.0f, 0.0f, 0.0f,
 	0.0f, 1.0f, 0.0f, 0.0f,
@@ -108,6 +110,9 @@ void Level::setup_bullet_world(){
 	//grav_vec = btVector3(0, 10, 0);
 	//dynamicsWorld->setGravity(grav_vec);
 
+    //Custom callback
+	gContactProcessedCallback = (ContactProcessedCallback)handle_col;
+
     //---- END BULLET INIT
 }
 
@@ -148,53 +153,38 @@ void Level::update_phys(float delta_s){
 	dynamicsWorld->stepSimulation(delta_s);
 }
 
-void Level::handle_col(){
-	int test = 0;
-	
-	//Handle collisions
-	int numManifolds = dynamicsWorld->getDispatcher()->getNumManifolds();
-	for (int i=0;i<numManifolds;i++)
-	{
-		btPersistentManifold* contactManifold = dynamicsWorld->getDispatcher()->getManifoldByIndexInternal(i);
-		vector<const btCollisionObject*> ob_vec;
-		ob_vec.push_back( contactManifold->getBody0() );
-		ob_vec.push_back( contactManifold->getBody1() );
+bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btCollisionObject* body1){
+	vector<const btCollisionObject*> ob_vec;
+	ob_vec.push_back( body0 );
+	ob_vec.push_back( body1 );
 
-		int numContacts = contactManifold->getNumContacts();
-		for (int j=0;j<numContacts;j++)
-		{
-			btManifoldPoint& pt = contactManifold->getContactPoint(j);
-			vector<string> str;
-			vector<btVector3> pts;
-			pts.push_back(pt.getPositionWorldOnA());
-			pts.push_back(pt.getPositionWorldOnB());
-			const btVector3& normalOnB = pt.m_normalWorldOnB;
+	vector<string> str;
+	vector<btVector3> pts;
+	pts.push_back(point.getPositionWorldOnA());
+	pts.push_back(point.getPositionWorldOnB());
+	//const btVector3& normalOnB = point.m_normalWorldOnB;
 
-			for(uint32_t o = 0; o < ob_vec.size(); o++){
-				pair<string,void*>* phys_ptr = (pair<string,void*>*)ob_vec[o]->getUserPointer();  
+	for(uint32_t o = 0; o < ob_vec.size(); o++){
+		pair<string,void*>* phys_ptr = (pair<string,void*>*)ob_vec[o]->getUserPointer();  
 
-				string obj_type = phys_ptr->first;
+		string obj_type = phys_ptr->first;
 
-				str.push_back(obj_type);
+		str.push_back(obj_type);
 
-				if(obj_type == "GameObj"){
-					((GameObj*)phys_ptr->second)->set_dead(true);
-				} else if (obj_type == "Terrain") {
-					((Terrain*)phys_ptr->second)->coll_at(pts[o]);
-				}
-			}
-
-			cout << "Obj coll " << test++ << ": " << str[0] << " vs " << str[1] << endl;
+		if(obj_type == "GameObj"){
+			((GameObj*)phys_ptr->second)->set_dead(true);
+		} else if (obj_type == "Terrain") {
+			((Terrain*)phys_ptr->second)->coll_at(pts[o]);
 		}
+	}
 
-		contactManifold->clearManifold();	
-	}   
+	cout << "Obj coll: " << str[0] << " vs " << str[1] << endl;
+	return true;
 }
 
 void Level::update(){
 	if(phys_timer.isStarted()){
 		update_phys( phys_timer.delta_s() );
-		handle_col();
 		phys_timer.start();
 	}
 

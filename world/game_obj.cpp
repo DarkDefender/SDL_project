@@ -84,6 +84,8 @@ void GameObj::init(){
 	
     //Don't simulate collisions with this object only use it to check if a collision has occured
 	phys_body->setCollisionFlags(phys_body->getCollisionFlags() | btCollisionObject::CF_NO_CONTACT_RESPONSE);
+	//Use a custom collision callback
+    phys_body->setCollisionFlags(phys_body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
 
 	phys_world->addRigidBody(phys_body);
 }
