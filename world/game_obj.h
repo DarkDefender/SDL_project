@@ -33,6 +33,7 @@ class GameObj {
 	vector<Mesh*> meshes;
 	string mesh_dir;
 	Shader shader;
+	float render_scale = 1;
     
 	/* Bullet Data */
 	bool inited;
@@ -72,11 +73,13 @@ class GameObj {
 	bool get_dead();
 	virtual int get_hp();
 	virtual void set_hp(int delta_hp);
+	void set_render_scale(float scale);
 	void render();
 	virtual void update();
 	void spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir);
 	void spawn_new_obj(GameObj* obj);
 	list<GameObj*> get_new_objs();
+	Shader get_shader();
 	void init();
 	static void set_phys_world(btDiscreteDynamicsWorld* phys_world); 
 	static void set_camera(Camera* cam);

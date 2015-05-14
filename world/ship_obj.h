@@ -8,7 +8,7 @@ using namespace std;
 
 class ShipObj : public GameObj{
 
-    Timer turn_timer, speed_timer, sim_timer, shoot_timer;
+    Timer turn_timer, speed_timer, sim_timer, shoot_timer, trail_timer;
 
 	btVector3 travel_dir;
 	btVector3 roll_vec = btVector3(0,0,0);

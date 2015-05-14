@@ -1,4 +1,5 @@
 #include "ship_obj.h"
+#include "trail_obj.h"
 #include <iostream>
 
 using namespace std;
@@ -11,6 +12,7 @@ ShipObj::ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion qu
 		get_body()->getMotionState()->getWorldTransform(trans); 
 		travel_dir = trans.getBasis().getColumn(2).normalized(); // z axis
 		sim_timer.start();
+		trail_timer.start();
 	};
 
 void ShipObj::update(){
@@ -54,6 +56,14 @@ void ShipObj::update(){
 
 		sim_timer.start();
 
+	}
+
+    if(trail_timer.delta_s() > 0.1f){
+		btVector3 spawn_x = trans.getBasis().getColumn(0).normalized() * 0.10f;
+		btVector3 spawn_z = trans.getBasis().getColumn(2).normalized() * 0.3f;
+		GameObj* trail1 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() + spawn_x - spawn_z, -travel_dir * 0.0f ); 
+		spawn_new_obj( trail1 );
+		trail_timer.start();
 	}
 
     if(cur_speed != target_speed && speed_timer.delta_s() > 0.01f){

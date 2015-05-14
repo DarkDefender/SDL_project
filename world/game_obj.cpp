@@ -44,6 +44,8 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
 		//TODO clean up shape objects when they are not needed anymore
 		if(type == "GameObj"){
 			obj_coll_shape[type] = new btBoxShape(btVector3(0.05f,1.0f,0.05f));
+		} else if (type == "TrailObj"){
+			obj_coll_shape[type] = new btEmptyShape();
 		} else {
 			//obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
 			obj_coll_shape[type] = new btSphereShape(0.25f);
@@ -289,6 +291,10 @@ void GameObj::set_hp(int delta_hp){
 	health += delta_hp;
 }
 
+void GameObj::set_render_scale(float scale){
+	render_scale = scale;
+}
+
 void GameObj::render(){
     if(!inited){
 	   cerr << "Tried to render un-inited object" << endl;
@@ -325,6 +331,10 @@ void GameObj::render(){
 							           x_axis.y(), y_axis.y(), z_axis.y(),
 									   x_axis.z(), y_axis.z(), z_axis.z());
 		trans.setBasis( mat );
+	}
+
+    if( render_scale != 1 ){
+		trans.setBasis( trans.getBasis().scaled( btVector3(render_scale, render_scale, render_scale) ) );
 	}
 
     btScalar m[16];
@@ -377,6 +387,10 @@ list<GameObj*> GameObj::get_new_objs() {
 	return temp_list;
 }
 
+Shader GameObj::get_shader(){
+	//TODO create a dict of available shaders
+	return shader;
+}
 
 void GameObj::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 	phys_world = new_phys_world;
