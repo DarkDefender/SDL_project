@@ -9,8 +9,9 @@ TrailObj::TrailObj( string mdl_path, Shader shader, btVector3 pos, btVector3 spe
 	};
 
 void TrailObj::update(){
-	set_render_scale( 1.0f - life_timer.delta_s() / 0.3f );
-	if( life_timer.delta_s() > 0.3f ){
+	set_render_scale( 1.0f - life_timer.delta_s() / 0.18f );
+
+	if( life_timer.delta_s() > 0.18f ){
 		set_dead(true);
 	}
 }

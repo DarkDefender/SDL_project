@@ -58,11 +58,13 @@ void ShipObj::update(){
 
 	}
 
-    if(trail_timer.delta_s() > 0.1f){
-		btVector3 spawn_x = trans.getBasis().getColumn(0).normalized() * 0.10f;
+    if(trail_timer.delta_s() * cur_speed > 0.1f){
+		btVector3 spawn_x = trans.getBasis().getColumn(0).normalized() * 0.105f;
 		btVector3 spawn_z = trans.getBasis().getColumn(2).normalized() * 0.3f;
-		GameObj* trail1 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() + spawn_x - spawn_z, -travel_dir * 0.0f ); 
+		GameObj* trail1 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() + spawn_x - spawn_z, travel_dir * 0 ); 
+		GameObj* trail2 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() - spawn_x - spawn_z, travel_dir * 0 ); 
 		spawn_new_obj( trail1 );
+		spawn_new_obj( trail2 );
 		trail_timer.start();
 	}
 
