@@ -9,6 +9,7 @@
 
 #include <cmath>
 #include <set>
+#include <list>
 
 #include <utility> 
 
@@ -176,7 +177,7 @@ void Terrain::load_h_map(string path){
 		if((tile_id == 3 || tile_id == 2) && (below == 3 || below == 2) && (next == 3 || next == 2) && (next_below == 3 || next_below == 2) ){
 
 			if( terrain_mesh->vertices[i].Position.y == 0){
-				water_pos.push_back(i);
+				water_pos.insert(i);
 			}
 		}
 	}
@@ -237,8 +238,8 @@ void Terrain::water_sim(){
 	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
-	for(uint32_t i = 0; i < water_pos.size(); i++){
-		vec3* pos = &(terrain_mesh->vertices[water_pos[i]].Position);
+	for(auto it = water_pos.begin(); it != water_pos.end(); it++){
+		vec3* pos = &(terrain_mesh->vertices[*it].Position);
 
         //Bullet before update
 
@@ -268,11 +269,12 @@ void Terrain::water_sim(){
 			bt_p2 = bt_p2 - cur_pos;
 			bt_p1 = bt_p2.cross(bt_p1);
 			bt_p1.normalize();
-			terrain_mesh->vertices[water_pos[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
+			terrain_mesh->vertices[*it].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
 		}
 	}
 
-	terrain_mesh->update_vbo(water_pos);
+	vector<uint32_t> upd_pos_vec(water_pos.begin(), water_pos.end());
+	terrain_mesh->update_vbo(upd_pos_vec);
 
 	//Update Bullet phys body
 	phys_tri_mesh->partialRefitTree(aabbMin,aabbMax);
@@ -280,6 +282,72 @@ void Terrain::water_sim(){
 	//clear all contact points involving mesh proxy. Note: this is a slow/unoptimized operation.
 	phys_world->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(phys_body->getBroadphaseHandle(),
 																				phys_world->getDispatcher());
+}
+
+
+void Terrain::update_tile_tex(set<uint32_t> pos, uint8_t id) {
+
+    uint8_t bytes[] = {id, id, id, 255};
+
+	glBindTexture(GL_TEXTURE_2D, terrain_mesh->textures[0].id);
+	
+	//TODO write whole rows instead of individual pixels
+	for( auto it = pos.begin(); it != pos.end(); it++ ){
+        uint32_t x, y;
+        
+        y = *it / w;
+		x = *it % w;
+
+		glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, bytes); 
+
+	}
+
+}
+
+void Terrain::animate_tiles(){
+	for( auto it = expo_timer_list.begin(); it != expo_timer_list.end(); it++ ){
+        float time = (*it).first.delta_s();
+
+		if( time < 0.2 ){
+			update_tile_tex( (*it).second, 12 );	
+		} else if( time < 0.4 ){
+			update_tile_tex( (*it).second, 13 );	
+		} else if( time < 0.6 ){
+			update_tile_tex( (*it).second, 14 );	
+		} else {
+			update_tile_tex( (*it).second, 15 );	
+			for( auto it2 = (*it).second.begin(); it2 != (*it).second.end(); it2++ ){
+			   explo_tiles.erase( *it2 ); 
+			}
+			it = expo_timer_list.erase(it); 
+		}
+	}
+
+}
+
+void Terrain::explode_terrain(set<uint32_t> pos) {
+    set<uint32_t> new_expo;
+
+	for( auto it = pos.begin(); it != pos.end(); it++ ){
+		if( !explo_tiles.count( *it ) && !water_pos.count( *it ) ){
+			//this tile is not currently exploding!
+			new_expo.insert( *it );
+			explo_tiles.insert( *it );
+		}
+	}
+
+	if( new_expo.empty() ){
+		return;
+	}
+
+	pair< Timer, set<uint32_t> > exp_pair;
+
+    Timer exp_timer;
+	exp_timer.start();
+
+	exp_pair = make_pair( exp_timer, new_expo );
+
+	expo_timer_list.push_back( exp_pair );
 }
 
 uint32_t Terrain::calc_idx(int &x, int &z){
@@ -301,20 +369,36 @@ uint32_t Terrain::calc_idx(int &x, int &z){
 
 void Terrain::coll_at(btVector3 terr_pos){
 
-	if(terr_pos.y() <= 0.f){
-		return;
-	}
-
     set<uint32_t> upd_pos;
-
-	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
-	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
 	int terr_x, terr_z;
 	terr_x = (int)(terr_pos.x() + 0.5f); 
 	terr_z = (int)(terr_pos.z() + 0.5f);
 	uint32_t start_idx = terr_x + terr_z  * w;
 	upd_pos.insert( start_idx );
+
+	if(terr_pos.y() <= 0.f){
+        //No terrain should be moved, just update the texture
+		int x, z;
+		x = terr_x + 1;
+		z = terr_z;
+		upd_pos.insert( calc_idx( x, z ) );
+
+        x = terr_x - 1;
+		upd_pos.insert( calc_idx( x, z ) );
+        
+		x = terr_x;
+        z = terr_z + 1;
+		upd_pos.insert( calc_idx( x, z ) );
+
+        z = terr_z - 1;
+		upd_pos.insert( calc_idx( x, z ) );
+		explode_terrain( upd_pos );
+		return;
+	}
+
+	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
+	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
 	vec3* pos = &(terrain_mesh->vertices[start_idx].Position);
 
@@ -484,6 +568,8 @@ void Terrain::coll_at(btVector3 terr_pos){
 	phys_world->getBroadphase()->getOverlappingPairCache()->cleanProxyFromPairs(phys_body->getBroadphaseHandle(),
 																				phys_world->getDispatcher());
 
+	//Explode the tiles that got hit (texture update)
+	explode_terrain( upd_pos );
 }
 
 void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
@@ -494,6 +580,7 @@ void Terrain::render(){
 
 	if(water_timer.delta_s() > 0.05f){ 
 		water_sim();
+		animate_tiles();
 		water_timer.start();
 	}
 

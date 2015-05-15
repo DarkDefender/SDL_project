@@ -9,6 +9,8 @@
 #include "timer.h"
 
 #include <utility> 
+#include <set>  
+#include <list>
 
 using namespace std;
 
@@ -19,7 +21,9 @@ class Terrain {
 
     pair<string,Terrain*> phys_ptr;
 
-    vector<uint32_t> water_pos;
+    set<uint32_t> water_pos;
+    set<uint32_t> explo_tiles;
+	list< pair< Timer, set<uint32_t> > > expo_timer_list;
 
 	uint32_t w, h;
 
@@ -33,6 +37,10 @@ class Terrain {
     void gen_phys_body();
 	void load_h_map(string path);
 	void water_sim();
+
+    void update_tile_tex(set<uint32_t> pos, uint8_t id);
+	void animate_tiles();
+	void explode_terrain(set<uint32_t> pos);
 
 	public:
 	Terrain(Shader terr_shade);
