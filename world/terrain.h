@@ -19,6 +19,8 @@ class Terrain {
 
     pair<string,Terrain*> phys_ptr;
 
+    vector<uint32_t> water_pos;
+
 	uint32_t w, h;
 
 	static btDiscreteDynamicsWorld* phys_world;

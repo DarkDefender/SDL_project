@@ -21,7 +21,7 @@ void main(void)
     res_light = 1;
 
 	vec4 tex = texture(texture_diffuse, tex_Co);
-	if(tex.w < 0.5f){
+	if(tex.w < 0.5){
 		discard;
 	}
 	out_Color = vec4(tex.xyz * res_light,  tex.w);

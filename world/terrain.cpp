@@ -127,11 +127,13 @@ void Terrain::load_h_map(string path){
 
 	SDL_FreeSurface(img);
 	
+	string terr_ids = "small_smiley.png";
+
 	vector<Texture> tex_vec;
 
 	terrain_mesh = new Mesh(vertices, indices, tex_vec, shader, GL_DYNAMIC_DRAW);
 
-    terrain_mesh->add_texture("small_smiley.png", "tile_ids");
+    terrain_mesh->add_texture(terr_ids, "tile_ids");
     terrain_mesh->add_array_texture("tiles_16x16.png", 16, 16);
 
 	if(phys_world == NULL){
@@ -139,6 +141,48 @@ void Terrain::load_h_map(string path){
 		return;
 	}
 	gen_phys_body();
+
+	//See if there should be any water sim vertices
+	
+	img = IMG_Load(terr_ids.c_str());
+
+	if ( !img )
+	{
+		cerr << "IMG_Load terrain ids: " << IMG_GetError() << endl;
+		return;
+	}
+
+    uint8_t *ptr = (uint8_t*)img->pixels; 
+
+    //TODO handle wrap-around
+
+	for(uint32_t i = 0; i < terrain_mesh->vertices.size(); i++){
+		uint8_t tile_id = ptr[i * img->format->BitsPerPixel/8]; 
+		uint8_t below = 0;
+		uint8_t next = 0;
+		uint8_t next_below = 0;
+		if( i + img->w < terrain_mesh->vertices.size() ){
+			below = ptr[(i + img->w) * img->format->BitsPerPixel/8];
+		}
+
+		if( i + 1 < terrain_mesh->vertices.size()){
+			next = ptr[(i + 1) * img->format->BitsPerPixel/8];
+		}
+
+		if( i + 1 + img->w < terrain_mesh->vertices.size()){
+			next_below = ptr[(i + 1 + img->w) * img->format->BitsPerPixel/8];
+		}
+
+		if((tile_id == 3 || tile_id == 2) && (below == 3 || below == 2) && (next == 3 || next == 2) && (next_below == 3 || next_below == 2) ){
+
+			if( terrain_mesh->vertices[i].Position.y == 0){
+				water_pos.push_back(i);
+			}
+		}
+	}
+
+	SDL_FreeSurface(img);
+
 }
 
 void Terrain::gen_phys_body(){
@@ -178,19 +222,14 @@ void Terrain::gen_phys_body(){
 }
 
 void Terrain::water_sim(){
-	static vector<uint32_t> upd_pos;
     static Timer timer;
+
+	if(water_pos.size() == 0){
+		return;
+	}
 
 	if( !timer.isStarted() ){
 		timer.start();
-	}
-
-	if(upd_pos.size() == 0){
-		for(uint32_t i = 0; i < terrain_mesh->vertices.size(); i++){
-			if(terrain_mesh->vertices[i].Position.y == 0){
-				upd_pos.push_back(i);
-			}
-		}
 	}
 
     float time = timer.delta_s();
@@ -198,8 +237,8 @@ void Terrain::water_sim(){
 	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
 	btVector3 aabbMax(-BT_LARGE_FLOAT,-BT_LARGE_FLOAT,-BT_LARGE_FLOAT);
 
-	for(uint32_t i = 0; i < upd_pos.size(); i++){
-		vec3* pos = &(terrain_mesh->vertices[upd_pos[i]].Position);
+	for(uint32_t i = 0; i < water_pos.size(); i++){
+		vec3* pos = &(terrain_mesh->vertices[water_pos[i]].Position);
 
         //Bullet before update
 
@@ -207,7 +246,7 @@ void Terrain::water_sim(){
 		aabbMin.setMin(btVector3(pos->x, pos->y, pos->z));
 
 		//Update vert pos
-		pos->y = (cos(time + pos->x/5.0f) - cos(time + pos->x/10.0f) - cos(time + pos->z/5.0f))/2.0f; 
+		pos->y = (cos(time + pos->x) - cos(time + pos->x/5.0f) - cos(time + pos->z))/4.0f; 
 
         //Bullet after update
 
@@ -229,11 +268,11 @@ void Terrain::water_sim(){
 			bt_p2 = bt_p2 - cur_pos;
 			bt_p1 = bt_p2.cross(bt_p1);
 			bt_p1.normalize();
-			terrain_mesh->vertices[upd_pos[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
+			terrain_mesh->vertices[water_pos[i]].Normal = vec3(bt_p1.x(), bt_p1.y(), bt_p1.z());
 		}
 	}
 
-	terrain_mesh->update_vbo(upd_pos);
+	terrain_mesh->update_vbo(water_pos);
 
 	//Update Bullet phys body
 	phys_tri_mesh->partialRefitTree(aabbMin,aabbMax);
