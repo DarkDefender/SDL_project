@@ -10,7 +10,7 @@ uniform mat4 modelMatrix;
 
 flat out vec3 out_Normal;
 out vec3 out_Pos;
-out vec2 tex_Co;
+flat out vec2 tex_Co;
 
 void main(void)
 {

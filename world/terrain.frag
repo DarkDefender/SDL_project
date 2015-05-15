@@ -3,7 +3,7 @@
 out vec4 out_Color;
 flat in vec3 out_Normal;
 in vec3 out_Pos;
-in vec2 tex_Co;
+flat in vec2 tex_Co;
 
 uniform mat4 viewMatrix;
 uniform mat4 modelMatrix;
@@ -28,7 +28,7 @@ void main(void)
 
 	vec3 tile_offset = vec3( texture(tile_ids, tex_Co) );
 
-	vec3 new_tex_Co = vec3( fract( vec2( tex_Co[0] * w , tex_Co[1] * h ) ), tile_offset[0]*16);
+	vec3 new_tex_Co = vec3( fract( vec2( out_Pos.xz ) ), tile_offset[0]*255);
 
 	vec3 tile = vec3( texture(tex_array, new_tex_Co) );
 	out_Color = vec4(tile * res_light * ( 1.0 - temp/100.0 ), 1);

@@ -19,7 +19,7 @@ btDiscreteDynamicsWorld* Terrain::phys_world = NULL;
 Terrain::Terrain(Shader terr_shade) {
 	//TODO clean up generated terrain when it's not needed anymore
 	shader = terr_shade;
-	load_h_map("fft-terrain.tga");
+	load_h_map("cust_terrain.png");
 	water_timer.start();
 
 	phys_ptr = make_pair("Terrain", this);
@@ -131,7 +131,7 @@ void Terrain::load_h_map(string path){
 
 	terrain_mesh = new Mesh(vertices, indices, tex_vec, shader, GL_DYNAMIC_DRAW);
 
-    terrain_mesh->add_texture("tile_ids.png", "tile_ids");
+    terrain_mesh->add_texture("small_smiley.png", "tile_ids");
     terrain_mesh->add_array_texture("tiles_16x16.png", 16, 16);
 
 	if(phys_world == NULL){
