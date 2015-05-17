@@ -328,8 +328,6 @@ void Terrain::animate_tiles(){
 void Terrain::explode_terrain(set<uint32_t> pos) {
     set<uint32_t> new_expo;
 
-    cout << "Pos size: " << pos.size() << endl;
-
 	for( auto it = pos.begin(); it != pos.end(); it++ ){
 		if( !explo_tiles.count( *it ) && !water_pos.count( *it ) ){
 			//this tile is not currently exploding!

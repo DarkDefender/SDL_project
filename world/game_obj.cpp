@@ -94,7 +94,7 @@ void GameObj::init(){
 }
 
 void GameObj::clean_up(){
-	cout << "Called destructor game obj" << endl;
+	//cout << "Called destructor game obj" << endl;
 	phys_world->removeRigidBody(phys_body);
 	delete phys_body->getMotionState();
 	delete phys_body; 
@@ -130,6 +130,9 @@ void GameObj::load_model(string path){
 	mesh_dir = path.substr(0, path.find_last_of('/'));
 
 	process_node(scene->mRootNode, scene);
+
+	//Store the loaded meshes for use in other objects
+	loaded_meshes[path] = meshes;
 }
 
 void GameObj::process_node(aiNode* node, const aiScene* scene)
@@ -384,7 +387,6 @@ void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir, Game
 		body->setGravity(btVector3(0,0,0));
 
 		body->setLinearVelocity(trav_dir*75);   
-		cout << "Happ\n" << endl;
 	}
 }
 

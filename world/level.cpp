@@ -180,7 +180,7 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 		}
 	}
 
-	cout << "Obj coll: " << str[0] << " vs " << str[1] << endl;
+	//cout << "Obj coll: " << str[0] << " vs " << str[1] << endl;
 	return true;
 }
 
