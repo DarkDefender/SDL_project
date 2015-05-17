@@ -48,7 +48,8 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
 			obj_coll_shape[type] = new btEmptyShape();
 		} else {
 			//obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
-			obj_coll_shape[type] = new btSphereShape(0.25f);
+			//obj_coll_shape[type] = new btSphereShape(0.25f);
+			obj_coll_shape[type] = new btConvexHullShape( &(meshes[0]->vertices[0].Position.x), meshes[0]->vertices.size(), sizeof(Vertex) );
 		}
 	}
 	body_shape = obj_coll_shape[type];
@@ -295,6 +296,15 @@ void GameObj::set_render_scale(float scale){
 	render_scale = scale;
 }
 
+GameObj* GameObj::get_spawn_obj() {
+	return spawn_obj;
+}
+
+void GameObj::set_spawn_obj(GameObj* obj) {
+    spawn_obj = obj;
+}
+
+
 void GameObj::render(){
     if(!inited){
 	   cerr << "Tried to render un-inited object" << endl;
@@ -349,7 +359,7 @@ void GameObj::update(){
 	return;
 }
 
-void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir) {
+void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir, GameObj* s_obj) {
 	if(type == "las_shoot"){
 		//TODO check if z-axis is the trav_dir
 		btVector3 z_vec(0,0,1);
@@ -367,6 +377,8 @@ void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir) {
         btTransform temp_trans(mat);
 
 		new_objs.push_back(new GameObj("../res/laser_shot1.obj", shader, "GameObj", Y_AXIS, pos, temp_trans.getRotation() ));
+
+        new_objs.back()->set_spawn_obj(s_obj);
 
 		btRigidBody* body = new_objs.back()->get_body();
 		body->setGravity(btVector3(0,0,0));

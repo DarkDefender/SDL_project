@@ -58,6 +58,9 @@ class GameObj {
 
 	list<GameObj*> new_objs;
 
+	//Who spawned this obj
+    GameObj* spawn_obj = NULL;
+
 	/*  Functions   */
 	void load_model(string path);
 	void process_node(aiNode* node, const aiScene* scene);
@@ -68,15 +71,20 @@ class GameObj {
 	/*  Functions   */
 	void teleport(btVector3 new_pos);
 	void teleport(GLfloat x, GLfloat y, GLfloat z);
+
 	btRigidBody* get_body();
 	void set_dead(bool dead);
 	bool get_dead();
 	virtual int get_hp();
 	virtual void set_hp(int delta_hp);
 	void set_render_scale(float scale);
+
+	GameObj* get_spawn_obj();
+	void set_spawn_obj(GameObj* obj);
+
 	void render();
 	virtual void update();
-	void spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir);
+	void spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir, GameObj* s_obj = NULL);
 	void spawn_new_obj(GameObj* obj);
 	list<GameObj*> get_new_objs();
 	Shader get_shader();

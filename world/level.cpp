@@ -172,7 +172,9 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 		str.push_back(obj_type);
 
 		if(obj_type == "GameObj"){
-			((GameObj*)phys_ptr->second)->set_dead(true);
+			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->second != ((GameObj*)phys_ptr->second)->get_spawn_obj() ){
+				((GameObj*)phys_ptr->second)->set_dead(true);
+			}
 		} else if (obj_type == "Terrain") {
 			((Terrain*)phys_ptr->second)->coll_at(pts[o]);
 		}
