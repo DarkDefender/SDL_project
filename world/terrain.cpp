@@ -328,6 +328,8 @@ void Terrain::animate_tiles(){
 void Terrain::explode_terrain(set<uint32_t> pos) {
     set<uint32_t> new_expo;
 
+    cout << "Pos size: " << pos.size() << endl;
+
 	for( auto it = pos.begin(); it != pos.end(); it++ ){
 		if( !explo_tiles.count( *it ) && !water_pos.count( *it ) ){
 			//this tile is not currently exploding!
@@ -377,8 +379,9 @@ void Terrain::coll_at(btVector3 terr_pos){
 	uint32_t start_idx = terr_x + terr_z  * w;
 	upd_pos.insert( start_idx );
 
-	if(terr_pos.y() <= 0.f){
-        //No terrain should be moved, just update the texture
+	{
+        //update the texture around the collision point
+		//Used later when "exploding" the terrain texture
 		int x, z;
 		x = terr_x + 1;
 		z = terr_z;
@@ -393,8 +396,6 @@ void Terrain::coll_at(btVector3 terr_pos){
 
         z = terr_z - 1;
 		upd_pos.insert( calc_idx( x, z ) );
-		explode_terrain( upd_pos );
-		return;
 	}
 
 	btVector3 aabbMin(BT_LARGE_FLOAT,BT_LARGE_FLOAT,BT_LARGE_FLOAT);
