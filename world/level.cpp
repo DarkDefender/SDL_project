@@ -56,7 +56,7 @@ Level::Level(){
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
-    player = new ShipObj("../res/plane1_v3.obj", shader, btVector3(70,10,70), camera.get_quat() );
+    player = new ShipObj("../res/plane1_v3.obj", "../res/plane1_col.obj", shader, btVector3(70,10,70), camera.get_quat() );
 
 	obj_list.push_back( player );
 
@@ -176,11 +176,11 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 				((GameObj*)phys_ptr->second)->set_dead(true);
 			}
 		} else if (obj_type == "Terrain") {
-			((Terrain*)phys_ptr->second)->coll_at(pts[o]);
+			((Terrain*)phys_ptr->second)->add_coll_at(pts[o]);
 		}
 	}
 
-	//cout << "Obj coll: " << str[0] << " vs " << str[1] << endl;
+	cout << "Obj coll: " << str[0] << " vs " << str[1] << endl;
 	return true;
 }
 
@@ -189,6 +189,8 @@ void Level::update(){
 		update_phys( phys_timer.delta_s() );
 		phys_timer.start();
 	}
+
+    ter->update();
 
     list<GameObj*> new_objs;
 

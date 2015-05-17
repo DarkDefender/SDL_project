@@ -15,6 +15,17 @@ ShipObj::ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion qu
 		trail_timer.start();
 	};
 
+ShipObj::ShipObj( string mdl_path, string col_path, Shader shader, btVector3 pos, btQuaternion quat ) :
+	GameObj(mdl_path, col_path, shader, "ShipObj", NONE, pos, quat){
+		get_body()->setGravity(btVector3(0,0,0));
+		get_body()->setDamping(0,0.5f);
+		btTransform trans;
+		get_body()->getMotionState()->getWorldTransform(trans); 
+		travel_dir = trans.getBasis().getColumn(2).normalized(); // z axis
+		sim_timer.start();
+		trail_timer.start();
+	};
+
 void ShipObj::update(){
 
 	btTransform trans;

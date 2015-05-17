@@ -571,18 +571,28 @@ void Terrain::coll_at(btVector3 terr_pos){
 	explode_terrain( upd_pos );
 }
 
+void Terrain::add_coll_at(btVector3 pos){
+    col_list.push_back(pos);
+};
+
 void Terrain::set_phys_world(btDiscreteDynamicsWorld* new_phys_world){
 	phys_world = new_phys_world;
 }
 
-void Terrain::render(){
+void Terrain::update(){
+	for(auto it = col_list.begin(); it != col_list.end(); it++){
+		coll_at(*it);
+	}
+	col_list.clear();
 
 	if(water_timer.delta_s() > 0.05f){ 
 		water_sim();
 		animate_tiles();
 		water_timer.start();
 	}
+}
 
+void Terrain::render(){
     btTransform trans;
 	trans.setIdentity();
     btScalar m[16];

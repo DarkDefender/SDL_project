@@ -97,6 +97,10 @@ class GameObj {
 											Btype b_type = NONE,
 											btVector3 pos = btVector3(0,0,0),
 											btQuaternion quat = btQuaternion(0,0,0));
+	GameObj(string mdl_path, string col_path, Shader shader, string type = "GameObj",
+											Btype b_type = NONE,
+											btVector3 pos = btVector3(0,0,0),
+											btQuaternion quat = btQuaternion(0,0,0));
 	virtual ~GameObj();
 };
 

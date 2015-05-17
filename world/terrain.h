@@ -25,6 +25,8 @@ class Terrain {
     set<uint32_t> explo_tiles;
 	list< pair< Timer, set<uint32_t> > > expo_timer_list;
 
+	list<btVector3> col_list;
+
 	uint32_t w, h;
 
 	static btDiscreteDynamicsWorld* phys_world;
@@ -42,12 +44,14 @@ class Terrain {
 	void animate_tiles();
 	void explode_terrain(set<uint32_t> pos);
 
+	void coll_at(btVector3 pos);
 	public:
 	Terrain(Shader terr_shade);
 	~Terrain();
 	uint32_t calc_idx(int &x, int &z);
-	void coll_at(btVector3 pos);
+	void add_coll_at(btVector3 pos);
 	static void set_phys_world(btDiscreteDynamicsWorld* new_phys_world);
+	void update();
 	void render();
 };
 

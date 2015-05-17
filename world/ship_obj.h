@@ -24,6 +24,7 @@ class ShipObj : public GameObj{
 
 	public:
 	ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion quat );
+	ShipObj( string mdl_path, string col_path, Shader shader, btVector3 pos, btQuaternion quat );
 	void update();
 	void shoot(bool shoot);
 	void change_trav_dir(float dx, float dy, float dz);

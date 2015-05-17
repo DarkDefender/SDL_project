@@ -48,11 +48,59 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
 			obj_coll_shape[type] = new btEmptyShape();
 		} else {
 			//obj_coll_shape[body_type] = new btCapsuleShape(1.0f, 1.0f);
-			//obj_coll_shape[type] = new btSphereShape(0.25f);
-			obj_coll_shape[type] = new btConvexHullShape( &(meshes[0]->vertices[0].Position.x), meshes[0]->vertices.size(), sizeof(Vertex) );
+			obj_coll_shape[type] = new btSphereShape(0.25f);
 		}
 	}
 	body_shape = obj_coll_shape[type];
+
+	if(phys_world != NULL){
+      //We have set all everything required to init!
+	  init();
+	}
+}
+
+GameObj::GameObj(string mdl_path, string col_path, Shader shader, string type, Btype b_type, btVector3 pos, btQuaternion quat){
+
+	this->shader = shader;
+	this->b_type = b_type;
+
+	inited = false;
+	phys_body = NULL;
+
+	phys_ptr = make_pair(type, this);
+    
+    spawn_pos = pos;
+	spawn_quat = quat;
+
+	load_model(col_path);
+
+	//TODO perhaps check if no meshes were loaded
+	if(obj_coll_shape.count(col_path) == 0){
+        if(meshes.size() == 1){
+			obj_coll_shape[col_path] = new btConvexHullShape( &(meshes[0]->vertices[0].Position.x), meshes[0]->vertices.size(), sizeof(Vertex) );
+		} else {
+			//Compound shape needed
+			btCompoundShape* comp = new	btCompoundShape();
+			for (uint32_t i = 0; i < meshes.size(); i++){
+				btConvexHullShape* hull = new btConvexHullShape( &(meshes[i]->vertices[0].Position.x), meshes[i]->vertices.size(), sizeof(Vertex) );
+				//Store the collision shape for later cleanup
+				//It doesn't get saved in the compound shape it seems...
+				obj_coll_shape[col_path + to_string(i)] = hull;
+
+				btTransform trans;
+				//No offsets. The shapes should be (in this case) corretly setup from the start
+				trans.setIdentity();
+				comp->addChildShape(trans, hull);
+			}
+			obj_coll_shape[col_path] = comp;
+		}
+	}
+	body_shape = obj_coll_shape[col_path];
+		
+    //Empty the meshes vector of collision meshes
+	meshes.clear();
+
+	load_model(mdl_path);
 
 	if(phys_world != NULL){
       //We have set all everything required to init!
