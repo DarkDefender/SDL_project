@@ -6,6 +6,7 @@
 #include "game_obj.h"
 #include "ship_obj.h"
 #include "hut_obj.h"
+#include "trail_obj.h"
 #include <GL/glew.h>
 #include "ogl_h_func.h"
 #include "camera.h"
@@ -207,6 +208,8 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 		if(obj_type == "GameObj"){
 			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->second != ((GameObj*)phys_ptr->second)->get_spawn_obj() ){
 				((GameObj*)phys_ptr->second)->set_dead(true);
+				GameObj* hit = new TrailObj("../res/shot_hit.obj", "fullb", pts[o], btVector3(0,0,0));
+                ((GameObj*)phys_ptr->second)->spawn_new_obj( hit );
 			}
 		} else if (obj_type == "Terrain") {
 			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->first != "HutObj" ){
