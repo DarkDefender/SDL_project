@@ -52,7 +52,7 @@ void game(SDL_Window *mainwindow){
 
     b2.set_text_speed(100, true);
 
-	Timer sin_timer, frame_timer;
+	Timer sin_timer, frame_timer, fps_timer;
 	sin_timer.start();
 	frame_timer.start();
 
@@ -68,6 +68,9 @@ void game(SDL_Window *mainwindow){
     printError("Post level");
 
 	while( !done ){
+
+		fps_timer.start();
+
 		while( SDL_PollEvent( &event ) != 0 ){  
 			switch (event.type) {
 				case SDL_MOUSEBUTTONDOWN:
@@ -167,6 +170,11 @@ void game(SDL_Window *mainwindow){
 		//SDL_Delay(2000);
         
 		level.update();
+
+        if( fps_timer.delta_s() < 1.0f/120.0f ){
+			SDL_Delay( (1000 / 120) - fps_timer.getTicks() );
+		}
+
 		frames++;
 		if( frame_timer.delta_s() >= 1 ){
 			b1.new_text("FPS: " + to_string(frames));

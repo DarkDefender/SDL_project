@@ -344,8 +344,12 @@ int GameObj::get_hp(){
 	return health;
 }
 
-void GameObj::set_hp(int delta_hp){
-	health += delta_hp;
+void GameObj::set_hp(int hp){
+	health = hp;
+}
+
+void GameObj::apply_dmg(int dmg){
+	health -= dmg;
 }
 
 void GameObj::set_render_scale(float scale){

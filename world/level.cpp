@@ -98,7 +98,7 @@ Level::Level(){
     mdl_l.push_back("../res/gate2.obj");
 
     col_l.push_back("../res/gate1_col.obj");
-    col_l.push_back("../res/gate2.obj");
+    col_l.push_back("../res/gate2_col.obj");
 
 	GameObj* gate = new HutObj( mdl_l, col_l, btVector3(132,0,118) );
 	obj_list.push_back(gate);
@@ -208,13 +208,18 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 		if(obj_type == "GameObj"){
 			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->second != ((GameObj*)phys_ptr->second)->get_spawn_obj() ){
 				((GameObj*)phys_ptr->second)->set_dead(true);
-				GameObj* hit = new TrailObj("../res/shot_hit.obj", "fullb", pts[o], btVector3(0,0,0));
+				GameObj* hit = new TrailObj("../res/shot_hit.obj", "fullb", pts[(o + 1) % 2], btVector3(0,0,0));
                 ((GameObj*)phys_ptr->second)->spawn_new_obj( hit );
 			}
 		} else if (obj_type == "Terrain") {
-			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->first != "HutObj" ){
-				((Terrain*)phys_ptr->second)->add_coll_at(pts[o]);
-			}
+			((Terrain*)phys_ptr->second)->add_coll_at(pts[o]);
+		} else if (obj_type == "HutObj"){
+			 if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->first == "Terrain" ){
+				 ((HutObj*)phys_ptr->second)->set_dead(true);  
+			 } else {
+				 int dmg = ((GameObj*)((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->second)->get_hp();
+				 ((HutObj*)phys_ptr->second)->apply_dmg(dmg);
+			 }
 		}
 	}
 

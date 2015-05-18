@@ -53,7 +53,7 @@ class GameObj {
 
     /* Obj Data */
 	bool dead = false;
-	int health = 100;
+	int health = 10;
     pair<string,GameObj*> phys_ptr;
 	Btype b_type;
 
@@ -77,7 +77,8 @@ class GameObj {
 	void set_dead(bool dead);
 	bool get_dead();
 	virtual int get_hp();
-	virtual void set_hp(int delta_hp);
+	virtual void set_hp(int hp);
+	virtual void apply_dmg(int dmg);
 	void set_render_scale(float scale);
 
 	GameObj* get_spawn_obj();
