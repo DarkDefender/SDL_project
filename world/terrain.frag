@@ -24,7 +24,7 @@ void main(void)
 
 	vec3 light = vec3(0.58, 0.58, 0.58);
 
-	float res_light = dot(normalize(light), normalize(transformedNormal));
+	float res_light = 0.4 + dot(normalize(light), normalize(transformedNormal));
 
 	vec3 tile_offset = vec3( texture(tile_ids, tex_Co) );
 
