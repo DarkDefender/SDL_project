@@ -5,6 +5,7 @@
 #include <list>
 #include "game_obj.h"
 #include "ship_obj.h"
+#include "hut_obj.h"
 #include <GL/glew.h>
 #include "ogl_h_func.h"
 #include "camera.h"
@@ -88,6 +89,18 @@ Level::Level(){
 
 	ter = new Terrain(terrain_shader);
 	shader_list.push_back(terrain_shader);
+
+	list<string> mdl_l;
+	list<string> col_l;
+
+    mdl_l.push_back("../res/gate1.obj");
+    mdl_l.push_back("../res/gate2.obj");
+
+    col_l.push_back("../res/gate1_col.obj");
+    col_l.push_back("../res/gate2.obj");
+
+	GameObj* gate = new HutObj( mdl_l, col_l, btVector3(132,0,118) );
+	obj_list.push_back(gate);
 }
 
 Level::~Level(){
@@ -196,7 +209,9 @@ bool Level::handle_col(btManifoldPoint& point, btCollisionObject* body0, btColli
 				((GameObj*)phys_ptr->second)->set_dead(true);
 			}
 		} else if (obj_type == "Terrain") {
-			((Terrain*)phys_ptr->second)->add_coll_at(pts[o]);
+			if( ((pair<string,void*>*)ob_vec[ (o + 1) % 2 ]->getUserPointer())->first != "HutObj" ){
+				((Terrain*)phys_ptr->second)->add_coll_at(pts[o]);
+			}
 		}
 	}
 
