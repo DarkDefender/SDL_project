@@ -100,7 +100,11 @@ Level::Level(){
     col_l.push_back("../res/gate1_col.obj");
     col_l.push_back("../res/gate2_col.obj");
 
-	GameObj* gate = new HutObj( mdl_l, col_l, btVector3(132,0,118) );
+	GameObj* gate = new HutObj( mdl_l, col_l, btVector3(132,0,110) );
+	obj_list.push_back(gate);
+	gate = new HutObj( mdl_l, col_l, btVector3(132,0,120) );
+	obj_list.push_back(gate);
+	gate = new HutObj( mdl_l, col_l, btVector3(132,0,130) );
 	obj_list.push_back(gate);
 }
 

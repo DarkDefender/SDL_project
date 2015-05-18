@@ -10,7 +10,7 @@ HutObj::HutObj( list<string> mdl_paths, list<string> col_paths, btVector3 pos ) 
 		col_list = col_paths;
 
 		get_body()->setGravity(btVector3(0,0,0));
-		set_hp(100);
+		set_hp(500);
 	};
 
 void HutObj::update(){

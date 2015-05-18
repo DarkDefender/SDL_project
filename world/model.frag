@@ -17,7 +17,7 @@ void main(void)
 
 	const vec3 light = vec3(0.58, 0.58, 0.58);
 
-	float res_light = 0.4 + dot(normalize(light), normalize(transformedNormal));
+	float res_light = 0.5 + dot(normalize(light), normalize(transformedNormal));
 
 	vec4 tex = texture(texture_diffuse, tex_Co);
 	out_Color = vec4(tex.xyz * res_light,  tex.w);

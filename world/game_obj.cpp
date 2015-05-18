@@ -416,6 +416,11 @@ void GameObj::render(){
 }
 
 void GameObj::update(){
+	btTransform trans;
+	get_body()->getMotionState()->getWorldTransform(trans); 
+	if( trans.getOrigin().length() > 300 ){
+		set_dead(true);
+	}
 	return;
 }
 
