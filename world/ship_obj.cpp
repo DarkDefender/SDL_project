@@ -4,8 +4,8 @@
 
 using namespace std;
 
-ShipObj::ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion quat ) :
-	GameObj(mdl_path, shader, "ShipObj", NONE, pos, quat){
+ShipObj::ShipObj( string mdl_path, string shader_name, btVector3 pos, btQuaternion quat ) :
+	GameObj(mdl_path, shader_name, "ShipObj", NONE, pos, quat){
 		get_body()->setGravity(btVector3(0,0,0));
 		get_body()->setDamping(0,0.5f);
 		btTransform trans;
@@ -15,8 +15,8 @@ ShipObj::ShipObj( string mdl_path, Shader shader, btVector3 pos, btQuaternion qu
 		trail_timer.start();
 	};
 
-ShipObj::ShipObj( string mdl_path, string col_path, Shader shader, btVector3 pos, btQuaternion quat ) :
-	GameObj(mdl_path, col_path, shader, "ShipObj", NONE, pos, quat){
+ShipObj::ShipObj( string mdl_path, string col_path, string shader_name, btVector3 pos, btQuaternion quat ) :
+	GameObj(mdl_path, col_path, shader_name, "ShipObj", NONE, pos, quat){
 		get_body()->setGravity(btVector3(0,0,0));
 		get_body()->setDamping(0,0.5f);
 		btTransform trans;
@@ -72,8 +72,8 @@ void ShipObj::update(){
     if(trail_timer.delta_s() * cur_speed > 0.1f){
 		btVector3 spawn_x = trans.getBasis().getColumn(0).normalized() * 0.105f;
 		btVector3 spawn_z = trans.getBasis().getColumn(2).normalized() * 0.3f;
-		GameObj* trail1 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() + spawn_x - spawn_z, travel_dir * 0 ); 
-		GameObj* trail2 = new TrailObj( "../res/trail.obj", get_shader(), trans.getOrigin() - spawn_x - spawn_z, travel_dir * 0 ); 
+		GameObj* trail1 = new TrailObj( "../res/trail.obj", "fullb", trans.getOrigin() + spawn_x - spawn_z, travel_dir * 0 ); 
+		GameObj* trail2 = new TrailObj( "../res/trail.obj", "fullb", trans.getOrigin() - spawn_x - spawn_z, travel_dir * 0 ); 
 		spawn_new_obj( trail1 );
 		spawn_new_obj( trail2 );
 		trail_timer.start();

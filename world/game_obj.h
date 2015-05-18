@@ -39,6 +39,7 @@ class GameObj {
 	bool inited;
 
 	static unordered_map<string,GLuint> texture_ids;
+	static unordered_map<string,Shader> shaders;
 	static unordered_map<string,btCollisionShape*> obj_coll_shape;
 	static unordered_map<string,vector<Mesh*>> loaded_meshes;
 	static btDiscreteDynamicsWorld* phys_world;
@@ -93,11 +94,12 @@ class GameObj {
 	static void set_camera(Camera* cam);
 	static GLuint load_texture(string path);
 	static GLuint load_array_texture(string path, uint32_t w, uint32_t h);
-	GameObj(string mdl_path, Shader shader, string type = "GameObj",
+	static void add_shader(string name, Shader new_shad);
+	GameObj(string mdl_path, string shader_name, string type = "GameObj",
 											Btype b_type = NONE,
 											btVector3 pos = btVector3(0,0,0),
 											btQuaternion quat = btQuaternion(0,0,0));
-	GameObj(string mdl_path, string col_path, Shader shader, string type = "GameObj",
+	GameObj(string mdl_path, string col_path, string shader_name, string type = "GameObj",
 											Btype b_type = NONE,
 											btVector3 pos = btVector3(0,0,0),
 											btQuaternion quat = btQuaternion(0,0,0));

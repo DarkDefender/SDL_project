@@ -29,8 +29,7 @@ class Level {
 	Terrain* ter;
 	Timer phys_timer;
 
-    Shader shader;
-    Shader terrain_shader;
+	list<Shader> shader_list;
 
 	//Bullet
 	btBroadphaseInterface* broadphase;

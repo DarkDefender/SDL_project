@@ -49,27 +49,45 @@ Level::Level(){
     camera.add_waypoint(btVector3(-10,0,-10));
     camera.add_waypoint(btVector3(10,0,-10));
 
+	{
     //Create shader for mdl rendering
-	shader = compile_shader("../world/model.vert", "../world/model.frag"); 
+	Shader shader = compile_shader("../world/model.vert", "../world/model.frag"); 
 
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
-    player = new ShipObj("../res/plane1_v3.obj", "../res/plane1_col.obj", shader, btVector3(70,10,70), camera.get_quat() );
+	GameObj::add_shader("model", shader);
+	shader_list.push_back(shader);
+	}
+
+    player = new ShipObj("../res/plane1_v3.obj", "../res/plane1_col.obj", "model", btVector3(70,10,70), camera.get_quat() );
 
 	obj_list.push_back( player );
 
     camera.set_follow_obj( player->get_body() );
 	camera.set_follow_offset(0,0.3f,-1.5f);
 
+	{
+    //Create shader for fullb rendering
+	Shader shader = compile_shader("../world/model.vert", "../world/fullb.frag"); 
+
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
+
+	GameObj::add_shader("fullb", shader);
+	shader_list.push_back(shader);
+	}
+
 	//Create terrain shader
-    terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
+    Shader terrain_shader = compile_shader("../world/terrain.vert", "../world/terrain.frag");
 	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "modelMatrix"), 1, GL_FALSE, modelMatrix);
 
 	ter = new Terrain(terrain_shader);
+	shader_list.push_back(terrain_shader);
 }
 
 Level::~Level(){
@@ -127,7 +145,7 @@ void Level::cam_shoot(bool grav){
 		str = "happ";
 	}
 
-	obj_list.push_back(new GameObj("../res/box.obj", shader, str, NONE, pos, quat));
+	obj_list.push_back(new GameObj("../res/box.obj", "model", str, NONE, pos, quat));
 
 	btRigidBody* body = obj_list.back()->get_body();
 	if(grav){
@@ -143,10 +161,12 @@ void Level::update_proj_mat(float aspect){
 
     gen_proj_mat(projectionMatrix, 90, aspect, 0.01f, 3000.0f);
 
-    glUseProgram(shader.program);
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
-    glUseProgram(terrain_shader.program);
-	glUniformMatrix4fv(glGetUniformLocation(terrain_shader.program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+	for( auto it = shader_list.begin(); it != shader_list.end(); it++){
+
+		glUseProgram((*it).program);
+		glUniformMatrix4fv(glGetUniformLocation((*it).program, "projectionMatrix"), 1, GL_FALSE, projectionMatrix);
+
+	}
 }
 
 void Level::update_phys(float delta_s){
@@ -211,10 +231,11 @@ void Level::update(){
 
 	GLfloat viewMatrix[16];
 	camera.OGL_mat(viewMatrix);
-    glUseProgram(shader.program);
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
-    glUseProgram(terrain_shader.program);
-	glUniformMatrix4fv(glGetUniformLocation(shader.program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
+
+	for( auto it = shader_list.begin(); it != shader_list.end(); it++){
+		glUseProgram((*it).program);
+		glUniformMatrix4fv(glGetUniformLocation((*it).program, "viewMatrix"), 1, GL_FALSE, viewMatrix);
+	}
 }
 
 void Level::render(){

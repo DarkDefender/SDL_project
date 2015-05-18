@@ -11,7 +11,7 @@ class TrailObj : public GameObj{
 	Timer life_timer;
 
 	public:
-	TrailObj( string mdl_path, Shader shader, btVector3 pos, btVector3 speed_dir );
+	TrailObj( string mdl_path, string shader_name, btVector3 pos, btVector3 speed_dir );
 	void update();
 };
 #endif

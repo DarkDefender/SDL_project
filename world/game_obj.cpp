@@ -21,13 +21,14 @@ using namespace std;
 
 
 unordered_map<string,GLuint> GameObj::texture_ids;
+unordered_map<string,Shader> GameObj::shaders;
 unordered_map<string,btCollisionShape*> GameObj::obj_coll_shape;
 unordered_map<string,vector<Mesh*>> GameObj::loaded_meshes;
 btDiscreteDynamicsWorld* GameObj::phys_world = NULL; 
 Camera* GameObj::camera = NULL;
 
-GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVector3 pos, btQuaternion quat){
-	this->shader = shader;
+GameObj::GameObj(string mdl_path, string shader_name, string type, Btype b_type, btVector3 pos, btQuaternion quat){
+	this->shader = shaders[shader_name];
 	this->b_type = b_type;
 	load_model(mdl_path);
 
@@ -59,9 +60,9 @@ GameObj::GameObj(string mdl_path, Shader shader, string type, Btype b_type, btVe
 	}
 }
 
-GameObj::GameObj(string mdl_path, string col_path, Shader shader, string type, Btype b_type, btVector3 pos, btQuaternion quat){
+GameObj::GameObj(string mdl_path, string col_path, string shader_name, string type, Btype b_type, btVector3 pos, btQuaternion quat){
 
-	this->shader = shader;
+	this->shader = shaders[shader_name];
 	this->b_type = b_type;
 
 	inited = false;
@@ -307,6 +308,10 @@ GLuint GameObj::load_array_texture(string path, uint32_t w, uint32_t h){
 	return tex_id;
 }
 
+void GameObj::add_shader(string name, Shader new_shad){
+	shaders[name] = new_shad;
+}
+
 void GameObj::teleport(btVector3 new_pos){
 	//Remove it from the world while teleporting
 	phys_world->removeRigidBody( phys_body );
@@ -427,7 +432,7 @@ void GameObj::spawn_new_obj(string type, btVector3 pos, btVector3 trav_dir, Game
 
         btTransform temp_trans(mat);
 
-		new_objs.push_back(new GameObj("../res/laser_shot1.obj", shader, "GameObj", Y_AXIS, pos, temp_trans.getRotation() ));
+		new_objs.push_back(new GameObj("../res/laser_shot1.obj", "fullb", "GameObj", Y_AXIS, pos, temp_trans.getRotation() ));
 
         new_objs.back()->set_spawn_obj(s_obj);
 
