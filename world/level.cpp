@@ -110,6 +110,15 @@ Level::Level(){
 	
 	GameObj* tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 144), player);
 	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 147), player);
+	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 150), player);
+	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 153), player);
+	obj_list.push_back(tur);
 }
 
 Level::~Level(){
