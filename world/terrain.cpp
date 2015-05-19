@@ -20,7 +20,7 @@ btDiscreteDynamicsWorld* Terrain::phys_world = NULL;
 Terrain::Terrain(Shader terr_shade) {
 	//TODO clean up generated terrain when it's not needed anymore
 	shader = terr_shade;
-	load_h_map("cust_terrain.png");
+	load_h_map("../res/terrain/cust_terrain.png");
 	water_timer.start();
 
 	phys_ptr = make_pair("Terrain", this);
@@ -128,14 +128,14 @@ void Terrain::load_h_map(string path){
 
 	SDL_FreeSurface(img);
 	
-	string terr_ids = "small_smiley.png";
+	string terr_ids = "../res/terrain/small_smiley.png";
 
 	vector<Texture> tex_vec;
 
 	terrain_mesh = new Mesh(vertices, indices, tex_vec, shader, GL_DYNAMIC_DRAW);
 
     terrain_mesh->add_texture(terr_ids, "tile_ids");
-    terrain_mesh->add_array_texture("tiles_16x16.png", 16, 16);
+    terrain_mesh->add_array_texture("../res/terrain/tiles_16x16.png", 16, 16);
 
 	if(phys_world == NULL){
 		cout << "No phys world when generating terrain, skipping phys body gen." << endl;
