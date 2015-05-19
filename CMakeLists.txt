@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.6)
 project (Tutorial)
 
-list( APPEND CMAKE_CXX_FLAGS "-Wall -ggdb -std=c++11 ${CMAKE_CXX_FLAGS}")
+list( APPEND CMAKE_CXX_FLAGS "-Wall -ggdb -std=c++11 ${CMAKE_CXX_FLAGS} -I/usr/include/bullet/")
 
 find_package(ZLIB)
 # Needed check for libpsf
