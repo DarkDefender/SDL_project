@@ -1,10 +1,12 @@
 #include "turr_obj.h"
 #include "trail_obj.h"
 
-TurrObj::TurrObj( string mdl_path, string col_path, btVector3 pos, GameObj* enemy ) :
+TurrObj::TurrObj( string mdl_path, string col_path, btVector3 pos, GameObj* enemy, btVector3 shoot_offset ) :
 	GameObj(mdl_path, col_path, "model", "HutObj", NONE, pos){
 
         this->enemy = enemy;
+
+		this->shoot_offset = shoot_offset;
 
 		get_body()->setGravity(btVector3(0,0,0));
 		set_hp(200);
@@ -49,7 +51,7 @@ void TurrObj::update(){
 	from = trans1.getOrigin();
 
 	//Shoot from this pos
-    from += btVector3(0,1,0);
+    from += shoot_offset;
 
 	trans1.setOrigin(from);
 

@@ -108,6 +108,33 @@ Level::Level(){
 	gate = new HutObj( mdl_l, col_l, btVector3(132,0,130) );
 	obj_list.push_back(gate);
 	
+    mdl_l.clear();
+	col_l.clear();
+
+    mdl_l.push_back("../res/dome.obj");
+    mdl_l.push_back("../res/dome1.obj");
+
+    col_l.push_back("../res/dome_col.obj");
+    col_l.push_back("../res/dome1_col.obj");
+
+	gate = new HutObj( mdl_l, col_l, btVector3(139,0,108) );
+	obj_list.push_back(gate);
+    mdl_l.clear();
+	col_l.clear();
+
+    mdl_l.push_back("../res/scraper.obj");
+    mdl_l.push_back("../res/scraper1.obj");
+
+    col_l.push_back("../res/scraper_col.obj");
+    col_l.push_back("../res/scraper1_col.obj");
+
+	gate = new HutObj( mdl_l, col_l, btVector3(149,0,105) );
+	obj_list.push_back(gate);
+	gate = new HutObj( mdl_l, col_l, btVector3(149,0,110) );
+	obj_list.push_back(gate);
+	gate = new HutObj( mdl_l, col_l, btVector3(149,0,115) );
+	obj_list.push_back(gate);
+
 	GameObj* tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 144), player);
 	obj_list.push_back(tur);
 
@@ -118,6 +145,15 @@ Level::Level(){
 	obj_list.push_back(tur);
 
 	tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 153), player);
+	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr2.obj", "../res/turr2_col.obj", btVector3(47, 17.3f, 91), player, btVector3(0,0.5f,0));
+	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr2.obj", "../res/turr2_col.obj", btVector3(59, 20.2f, 113), player, btVector3(0,0.5f,0));
+	obj_list.push_back(tur);
+
+	tur = new TurrObj( "../res/turr2.obj", "../res/turr2_col.obj", btVector3(74, 19.4f, 86), player, btVector3(0,0.5f,0));
 	obj_list.push_back(tur);
 }
 
