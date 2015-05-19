@@ -6,6 +6,7 @@
 #include "game_obj.h"
 #include "ship_obj.h"
 #include "hut_obj.h"
+#include "turr_obj.h"
 #include "trail_obj.h"
 #include <GL/glew.h>
 #include "ogl_h_func.h"
@@ -106,6 +107,9 @@ Level::Level(){
 	obj_list.push_back(gate);
 	gate = new HutObj( mdl_l, col_l, btVector3(132,0,130) );
 	obj_list.push_back(gate);
+	
+	GameObj* tur = new TurrObj( "../res/turr1.obj", "../res/turr1_col.obj", btVector3(150, 0, 144), player);
+	obj_list.push_back(tur);
 }
 
 Level::~Level(){

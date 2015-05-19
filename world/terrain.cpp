@@ -179,6 +179,9 @@ void Terrain::load_h_map(string path){
 			if( terrain_mesh->vertices[i].Position.y == 0){
 				water_pos.insert(i);
 			}
+		} else if (tile_id == 3 || tile_id == 2) {
+			//Do not allow changing the tile id of this tile
+			no_animate.insert(i);
 		}
 	}
 
@@ -329,7 +332,7 @@ void Terrain::explode_terrain(set<uint32_t> pos) {
     set<uint32_t> new_expo;
 
 	for( auto it = pos.begin(); it != pos.end(); it++ ){
-		if( !explo_tiles.count( *it ) && !water_pos.count( *it ) ){
+		if( !explo_tiles.count( *it ) && !water_pos.count( *it ) && !no_animate.count( *it ) ){
 			//this tile is not currently exploding!
 			new_expo.insert( *it );
 			explo_tiles.insert( *it );

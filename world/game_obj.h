@@ -74,6 +74,7 @@ class GameObj {
 	void teleport(GLfloat x, GLfloat y, GLfloat z);
 
 	btRigidBody* get_body();
+	btDiscreteDynamicsWorld* get_world();
 	void set_dead(bool dead);
 	bool get_dead();
 	virtual int get_hp();

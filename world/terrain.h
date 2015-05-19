@@ -22,6 +22,7 @@ class Terrain {
     pair<string,Terrain*> phys_ptr;
 
     set<uint32_t> water_pos;
+    set<uint32_t> no_animate;
     set<uint32_t> explo_tiles;
 	list< pair< Timer, set<uint32_t> > > expo_timer_list;
 

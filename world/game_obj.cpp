@@ -332,6 +332,10 @@ btRigidBody* GameObj::get_body(){
 	return phys_body;
 }
 
+btDiscreteDynamicsWorld* GameObj::get_world(){
+	return phys_world;
+}
+
 void GameObj::set_dead(bool dead){
 	this->dead = dead;
 }
