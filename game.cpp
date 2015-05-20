@@ -125,6 +125,7 @@ void game(SDL_Window *mainwindow){
 					   case SDLK_d: level.handle_key_down(RIGHT); break;
 					   case SDLK_w: level.handle_key_down(UP); break;
 					   case SDLK_s: level.handle_key_down(DOWN); break;
+					   case SDLK_k: level.handle_key_down(ATTACK1); break;
 					   case SDLK_SPACE: level.handle_key_down(SPACE); break;
 					}
 					break;
@@ -135,6 +136,7 @@ void game(SDL_Window *mainwindow){
 					   case SDLK_d: level.handle_key_up(RIGHT); break;
 					   case SDLK_w: level.handle_key_up(UP); break;
 					   case SDLK_s: level.handle_key_up(DOWN); break;
+					   case SDLK_k: level.handle_key_up(ATTACK1); break;
 					   case SDLK_SPACE: level.handle_key_up(SPACE); break;
 					}
 					break;
