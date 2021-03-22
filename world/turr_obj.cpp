@@ -1,83 +1,88 @@
 #include "turr_obj.h"
 #include "trail_obj.h"
 
-TurrObj::TurrObj( string mdl_path, string col_path, btVector3 pos, GameObj* enemy, btVector3 shoot_offset ) :
-	GameObj(mdl_path, col_path, "model", "HutObj", NONE, pos){
+TurrObj::TurrObj(string mdl_path, string col_path, btVector3 pos,
+                 GameObj *enemy, btVector3 shoot_offset)
+    : GameObj(mdl_path, col_path, "model", "HutObj", NONE, pos) {
 
-        this->enemy = enemy;
+  this->enemy = enemy;
 
-		this->shoot_offset = shoot_offset;
+  this->shoot_offset = shoot_offset;
 
-		get_body()->setGravity(btVector3(0,0,0));
-		set_hp(200);
+  get_body()->setGravity(btVector3(0, 0, 0));
+  set_hp(200);
 
-		shoot_timer.start();
-	};
-
-class ClosestNotMeSweep : public btCollisionWorld::ClosestConvexResultCallback
-{
-	public:
-		ClosestNotMeSweep (btRigidBody* me, btVector3 from, btVector3 to) : btCollisionWorld::ClosestConvexResultCallback(from,to)
-	{
-		m_me = me;
-	}
-
-		virtual btScalar addSingleResult(btCollisionWorld::LocalConvexResult& convexResult,bool normalInWorldSpace)
-		{
-			if (convexResult.m_hitCollisionObject == m_me)
-				return 1.0;
-
-			return ClosestConvexResultCallback::addSingleResult (convexResult, normalInWorldSpace);
-		}
-	protected:
-		btRigidBody* m_me;
+  shoot_timer.start();
 };
 
-void TurrObj::update(){
+class ClosestNotMeSweep : public btCollisionWorld::ClosestConvexResultCallback {
+public:
+  ClosestNotMeSweep(btRigidBody *me, btVector3 from, btVector3 to)
+      : btCollisionWorld::ClosestConvexResultCallback(from, to) {
+    m_me = me;
+  }
 
-    if(get_hp() < 0){
-		set_dead(true);
-	}
+  virtual btScalar
+  addSingleResult(btCollisionWorld::LocalConvexResult &convexResult,
+                  bool normalInWorldSpace) {
+    if (convexResult.m_hitCollisionObject == m_me)
+      return 1.0;
 
-	if(get_dead()){
+    return ClosestConvexResultCallback::addSingleResult(convexResult,
+                                                        normalInWorldSpace);
+  }
 
-		return;
-	}
+protected:
+  btRigidBody *m_me;
+};
 
-	btTransform trans1, trans2;
-	btVector3 to, from;
-	get_body()->getMotionState()->getWorldTransform(trans1);
+void TurrObj::update() {
 
-	from = trans1.getOrigin();
+  if (get_hp() < 0) {
+    set_dead(true);
+  }
 
-	//Shoot from this pos
-    from += shoot_offset;
+  if (get_dead()) {
 
-	trans1.setOrigin(from);
+    return;
+  }
 
-	enemy->get_body()->getMotionState()->getWorldTransform(trans2);
+  btTransform trans1, trans2;
+  btVector3 to, from;
+  get_body()->getMotionState()->getWorldTransform(trans1);
 
-	to = trans2.getOrigin();
+  from = trans1.getOrigin();
 
-	if( (to - from).length() < 70 ){
+  // Shoot from this pos
+  from += shoot_offset;
 
-		btSphereShape sphere(0.1f);
+  trans1.setOrigin(from);
 
-        ClosestNotMeSweep cb( get_body(), from, to );
+  enemy->get_body()->getMotionState()->getWorldTransform(trans2);
 
-		get_world()->convexSweepTest(&sphere, trans1, trans2, cb);
-        
-		if( cb.hasHit() ){
+  to = trans2.getOrigin();
 
-			GameObj *obj = (GameObj*)((pair<string,void*>*)cb.m_hitCollisionObject->getUserPointer())->second; 
-			if(obj == enemy ){
-				if(shoot_timer.delta_s() > 2.0f){
-					shoot_timer.start();
-					btVector3 travel_dir = (to - from).normalized(); 
-					spawn_new_obj("las_shoot", trans1.getOrigin() + travel_dir * 1.5f, travel_dir , this);
-				}
-			}
-		}
-	}
+  if ((to - from).length() < 70) {
 
+    btSphereShape sphere(0.1f);
+
+    ClosestNotMeSweep cb(get_body(), from, to);
+
+    get_world()->convexSweepTest(&sphere, trans1, trans2, cb);
+
+    if (cb.hasHit()) {
+
+      GameObj *obj = (GameObj *)((pair<string, void *> *)
+                                     cb.m_hitCollisionObject->getUserPointer())
+                         ->second;
+      if (obj == enemy) {
+        if (shoot_timer.delta_s() > 2.0f) {
+          shoot_timer.start();
+          btVector3 travel_dir = (to - from).normalized();
+          spawn_new_obj("las_shoot", trans1.getOrigin() + travel_dir * 1.5f,
+                        travel_dir, this);
+        }
+      }
+    }
+  }
 }

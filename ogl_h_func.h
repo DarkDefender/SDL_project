@@ -1,16 +1,16 @@
 #ifndef OGL_H_FUNC
 #define OGL_H_FUNC
 
-#include <SDL2/SDL.h>
 #include <GL/glew.h>
-#include <string>
+#include <SDL2/SDL.h>
 #include <cstring>
+#include <string>
 
 struct Shader {
-	GLuint vertex;
-	GLuint fragment;
-	GLuint program;
-	bool error = false;
+  GLuint vertex;
+  GLuint fragment;
+  GLuint program;
+  bool error = false;
 };
 
 using namespace std;
@@ -27,6 +27,7 @@ GLuint *surf_to_array_texture(SDL_Surface *surf, uint32_t w, uint32_t h);
 
 GLuint *create_array_texture(const char *path, uint32_t w, uint32_t h);
 
-void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear, GLfloat zfar);
+void gen_proj_mat(GLfloat *m, GLfloat fov, GLfloat aspect, GLfloat znear,
+                  GLfloat zfar);
 
 #endif

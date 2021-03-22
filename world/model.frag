@@ -12,10 +12,10 @@ uniform sampler2D texture_diffuse;
 
 void main(void)
 {
-    mat3 normalMatrix1 = mat3(viewMatrix * modelMatrix);
+  mat3 normalMatrix1 = mat3(viewMatrix * modelMatrix);
 	vec3 transformedNormal = normalMatrix1 * out_Normal;
 
-    float temp = abs( (viewMatrix * modelMatrix * vec4(out_Pos,1)).z );
+  float temp = abs( (viewMatrix * modelMatrix * vec4(out_Pos,1)).z );
 
 	const vec3 light = vec3(0.58, 0.58, 0.58);
 

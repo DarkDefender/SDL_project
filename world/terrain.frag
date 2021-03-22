@@ -13,14 +13,14 @@ uniform sampler2DArray tex_array;
 
 void main(void)
 {
-    mat3 normalMatrix1 = mat3(viewMatrix * modelMatrix);
+  mat3 normalMatrix1 = mat3(viewMatrix * modelMatrix);
 	vec3 transformedNormal = normalMatrix1 * out_Normal;
 
 	//tile_ids w,h
-    const float w = 256.0;
-    const float h = 256.0;
+  const float w = 256.0;
+  const float h = 256.0;
 
-    float temp = abs( (viewMatrix * modelMatrix * vec4(out_Pos,1)).z );
+  float temp = abs( (viewMatrix * modelMatrix * vec4(out_Pos,1)).z );
 
 	vec3 light = vec3(0.58, 0.58, 0.58);
 
